@@ -146,7 +146,7 @@
   .win.v2.auto3 .subtitle{top:96px;opacity:1;}
   .subtitle b{color:var(--blue);font-weight:700;font-size:18px;margin:0 3px;}
   .subtitle .swap{
-    color:var(--blue);font-size:14px;cursor:pointer;text-decoration:none;
+    color:var(--blue);font-size:14px;cursor:pointer;
     border-bottom:1px solid transparent;transition:border-color .15s;margin-left:4px;
     white-space:nowrap;
   }
@@ -501,9 +501,8 @@
     if(mode === 1){
       subtitle.innerHTML = `已自动识别您处在 <b>${c.room}</b> 会议室`;
     } else {
-      subtitle.innerHTML = `识别您处在 <b>${c.room}</b> 会议室 <a class="swap" href="#">识别不准？换一个</a>`;
-      subtitle.querySelector('.swap').addEventListener('click', e=>{
-        e.preventDefault();
+      subtitle.innerHTML = `识别您处在 <b>${c.room}</b> 会议室 <span class="swap">识别不准？换一个</span>`;
+      subtitle.querySelector('.swap').addEventListener('click', ()=>{
         v2SwapIndex = (v2SwapIndex + 1) % pool.length;
         const nc = pool[v2SwapIndex];
         selectedCode = nc.code.replace('-','');

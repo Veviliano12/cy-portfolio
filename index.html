@@ -71,10 +71,16 @@
       border: 0;
       background: transparent;
       z-index: 4;                    /* 与卡片同层、在背景之上 */
-      transition: opacity .45s ease;
+      transform: translateY(0);
+      /* 展开=从顶部落下：略带回弹的缓动 */
+      transition: transform .95s cubic-bezier(.34, 1.42, .5, 1);
     }
-    /* 收起态：淡出并放弃指针事件 */
-    .lanyard-frame.lan-hidden { opacity: 0; pointer-events: none; }
+    /* 收起态：整条挂绳上移到屏幕外（收回去），加速上移 */
+    .lanyard-frame.lan-hidden {
+      transform: translateY(-130%);
+      pointer-events: none;
+      transition: transform .6s cubic-bezier(.5, 0, .85, .25);
+    }
     @media (max-width: 900px) {
       .lanyard-frame { display: none; }   /* 移动端竖屏不显示，保持简洁 */
     }
