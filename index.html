@@ -1,0 +1,1804 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <!-- 隐藏链接：不被搜索引擎收录 -->
+  <meta name="robots" content="noindex, nofollow, noarchive" />
+  <title>CHENYU PORTFOLIO</title>
+  <!-- 可变字体（TextPressure 挤压动效依赖它） -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Roboto+Flex:opsz,wdth,wght@8..144,25..151,100..1000&display=swap" rel="stylesheet">
+  <style>
+    /* ===== 全局基础 ===== */
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    :root {
+      --lime: #25d8ff;      /* 霓虹蓝主色 */
+      --ink: #0d0f0a;       /* 深底色 */
+      --text: #f4f6ee;
+      --muted: rgba(244,246,238,.72);
+      --card-w: 248px;
+      --card-h: 155px;
+    }
+    html, body { height: 100%; }
+    body {
+      font-family: -apple-system, "PingFang SC", "Microsoft YaHei", "Helvetica Neue", Arial, sans-serif;
+      background: var(--ink);
+      color: var(--text);
+      overflow-x: hidden;
+    }
+
+    /* ===== 首屏舞台 ===== */
+    .stage {
+      position: relative;
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      overflow: hidden;
+    }
+
+    /* 背景层：现在用渐变+云雾动画占位，将来换成你的视频/图 */
+    .bg {
+      position: absolute;
+      inset: 0;
+      z-index: 0;
+      /* 首屏静态背景：水天一色 + 压暗，保证文字与点阵清晰 */
+      background:
+        linear-gradient(180deg, rgba(8,12,20,.5) 0%, rgba(8,12,20,.62) 55%, rgba(13,15,10,.9) 100%),
+        url('assets/water-bg.jpg') center 30% / cover no-repeat;
+    }
+    /* 底部压暗，让卡片浮上来更明显 */
+    .bg-vignette {
+      position: absolute; inset: 0; z-index: 1;
+      background: linear-gradient(180deg, rgba(13,15,10,.15) 0%, transparent 35%, rgba(13,15,10,.55) 100%);
+      pointer-events: none;
+    }
+    /* 首屏 DotGrid 点阵背景：铺满整个首屏，位于背景与内容之间 */
+    #heroDots {
+      position: absolute; inset: 0; z-index: 2;
+      width: 100%; height: 100%;
+      pointer-events: none;
+    }
+
+    /* ===== 顶部导航 ===== */
+    .nav {
+      position: relative;
+      z-index: 5;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 22px 40px;
+    }
+    .logo {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      background: var(--lime);
+      color: #052331;
+      font-weight: 800;
+      font-size: 18px;
+      padding: 9px 18px;
+      border-radius: 30px;
+      letter-spacing: .5px;
+      box-shadow: 0 0 22px rgba(37,216,255,.55);
+    }
+    .nav-links {
+      display: flex;
+      gap: 38px;
+      font-size: 15px;
+      color: var(--muted);
+    }
+    .nav-links a { color: inherit; text-decoration: none; transition: color .2s; }
+    .nav-links a:hover { color: var(--lime); }
+    .nav-cta {
+      border: 1px solid rgba(244,246,238,.35);
+      color: var(--text);
+      background: rgba(255,255,255,.06);
+      padding: 9px 20px;
+      border-radius: 30px;
+      font-size: 14px;
+      cursor: pointer;
+      backdrop-filter: blur(6px);
+      transition: all .2s;
+    }
+    .nav-cta:hover { background: var(--lime); color: #052331; border-color: var(--lime); }
+
+    /* ===== 中央标题 ===== */
+    .hero {
+      position: relative;
+      z-index: 4;
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      padding: 0 40px;
+      max-width: 900px;
+    }
+    /* TextPressure 标题：可变字体 + 鼠标挤压动效 */
+    .pressure-wrap {
+      position: relative;
+      width: 100%;
+    }
+    .pressure-title {
+      font-family: "Roboto Flex", sans-serif;
+      font-size: clamp(72px, 13.5vw, 188px);
+      color: var(--lime);
+      text-shadow: 0 0 55px rgba(37,216,255,.4);
+      margin: 0;
+      text-align: left;
+      user-select: none;
+      white-space: nowrap;
+      line-height: .95;
+      display: inline-block;
+      width: fit-content;
+      cursor: default;
+    }
+    .pressure-title span {
+      display: inline-block;
+      font-variation-settings: 'wght' 400, 'opsz' 9;
+      will-change: font-variation-settings;
+    }
+    .spark { color: var(--lime); margin-left: .15em; align-self: center; font-size: .4em; }
+    /* CHENYU 下方的 PORTFOLIO：只描边、不填色，字号比 CHENYU 小一点 */
+    .hero-sub {
+      margin-top: 4px;
+      font-family: "Roboto Flex", sans-serif;
+      font-size: clamp(44px, 8.5vw, 116px);
+      font-weight: 800;
+      line-height: 1;
+      letter-spacing: .06em;
+      text-transform: uppercase;
+      color: transparent;
+      -webkit-text-stroke: 1.5px rgba(244,246,238,.9);
+      user-select: none;
+    }
+    .hero p {
+      margin-top: 26px;
+      font-size: clamp(15px, 1.6vw, 19px);
+      color: var(--muted);
+      line-height: 1.8;
+      max-width: 460px;
+    }
+
+    /* ===== 底部悬浮滚动卡片 ===== */
+    .cards-rail {
+      position: relative;
+      z-index: 4;
+      padding: 60px 0 46px;   /* 顶部留出空间，悬浮抬起时不被截断 */
+      /* 只在水平方向做淡出，遮罩在垂直方向铺满，避免裁掉抬起的卡片 */
+      -webkit-mask-image: linear-gradient(90deg, transparent, #000 6%, #000 94%, transparent);
+              mask-image: linear-gradient(90deg, transparent, #000 6%, #000 94%, transparent);
+      -webkit-mask-size: 100% 200%;
+              mask-size: 100% 200%;
+      -webkit-mask-position: center;
+              mask-position: center;
+      -webkit-mask-repeat: no-repeat;
+              mask-repeat: no-repeat;
+    }
+    .cards-track {
+      display: flex;
+      align-items: center;
+      gap: 22px;
+      width: max-content;
+      padding: 0 20px;
+      animation: marquee 38s linear infinite;
+    }
+    /* eShare：竖向长方形卡，高度与其它卡一致（横向变窄、按截图比例） */
+    .card.card-portrait { width: auto; height: var(--card-h); aspect-ratio: 43 / 70; }
+    .cards-rail:hover .cards-track { animation-play-state: paused; }
+    @keyframes marquee {
+      from { transform: translateX(0); }
+      to   { transform: translateX(-50%); }
+    }
+    .card {
+      width: var(--card-w);
+      height: var(--card-h);
+      border-radius: 16px;
+      flex-shrink: 0;
+      position: relative;
+      overflow: hidden;
+      box-shadow: 0 18px 40px rgba(0,0,0,.45);
+      transform: rotate(-3deg);
+      transition: transform .3s ease;
+      cursor: pointer;
+      border: 1px solid rgba(255,255,255,.12);
+    }
+    .card:nth-child(even) { transform: rotate(3deg); }
+    .card:hover { transform: rotate(0deg) translateY(-14px) scale(1.05); z-index: 2; }
+    /* 缩略图占位：渐变色块 + 项目名。将来把 background 换成你的图片即可 */
+    .card .thumb {
+      position: absolute; inset: 0;
+      display: flex; align-items: flex-end;
+      padding: 12px;
+    }
+    .card .name {
+      position: relative; z-index: 2;
+      font-size: 13px; font-weight: 700;
+      color: #fff;
+      text-shadow: 0 1px 6px rgba(0,0,0,.6);
+      line-height: 1.3;
+    }
+    .card::after {
+      content: ""; position: absolute; inset: 0;
+      background: linear-gradient(180deg, transparent 45%, rgba(0,0,0,.55) 100%);
+    }
+    /* 6 个项目各自的占位配色 */
+    .c1 .thumb { background: linear-gradient(135deg,#7be0c0,#2f8f6f); }
+    .c2 .thumb { background: linear-gradient(135deg,#ff9d6c,#c2410c); }
+    .c3 .thumb { background: linear-gradient(135deg,#8ab4ff,#3454b4); }
+    .c4 .thumb { background: linear-gradient(135deg,#caa6ff,#6d28d9); }
+    .c5 .thumb { background: linear-gradient(135deg,#ffd56b,#d97706); }
+    .c6 .thumb { background: linear-gradient(135deg,#ff8fb1,#be185d); }
+    .cg .thumb { background: linear-gradient(135deg,#5b8def,#1e3a8a); }
+
+    /* ===== BorderGlow（原 React 组件 CSS 移植，用于导航按钮） ===== */
+    .border-glow-card {
+      --edge-proximity: 0;
+      --cursor-angle: 45deg;
+      --edge-sensitivity: 25;
+      --color-sensitivity: calc(var(--edge-sensitivity) + 20);
+      --border-radius: 30px;
+      --glow-padding: 22px;
+      --cone-spread: 25;
+      --fill-opacity: .5;
+      --card-bg: rgba(13,18,22,.55);
+      /* 蓝青色网格渐变（贴合霓虹蓝主题） */
+      --gradient-one:   radial-gradient(at 80% 55%, #25d8ff 0px, transparent 50%);
+      --gradient-two:   radial-gradient(at 69% 34%, #4af0ff 0px, transparent 50%);
+      --gradient-three: radial-gradient(at 8% 6%,   #6ea8ff 0px, transparent 50%);
+      --gradient-four:  radial-gradient(at 41% 38%, #25d8ff 0px, transparent 50%);
+      --gradient-five:  radial-gradient(at 86% 85%, #4af0ff 0px, transparent 50%);
+      --gradient-six:   radial-gradient(at 82% 18%, #6ea8ff 0px, transparent 50%);
+      --gradient-seven: radial-gradient(at 51% 4%,  #4af0ff 0px, transparent 50%);
+      --gradient-base:  linear-gradient(#25d8ff 0 100%);
+      /* 辉光颜色（霓虹蓝 hsl≈195 100% 60%）多档透明度 */
+      --glow-color:    hsl(195deg 100% 65% / 100%);
+      --glow-color-60: hsl(195deg 100% 65% / 60%);
+      --glow-color-50: hsl(195deg 100% 65% / 50%);
+      --glow-color-40: hsl(195deg 100% 65% / 40%);
+      --glow-color-30: hsl(195deg 100% 65% / 30%);
+      --glow-color-20: hsl(195deg 100% 65% / 20%);
+      --glow-color-10: hsl(195deg 100% 65% / 10%);
+
+      position: relative;
+      border-radius: var(--border-radius);
+      isolation: isolate;
+      transform: translate3d(0,0,.01px);
+      display: grid;
+      border: 1px solid rgb(255 255 255 / 22%);
+      background: var(--card-bg);
+      overflow: visible;
+    }
+    .border-glow-card::before,
+    .border-glow-card::after,
+    .border-glow-card > .edge-light {
+      content: ""; position: absolute; inset: 0;
+      border-radius: inherit;
+      transition: opacity .25s ease-out;
+      z-index: -1;
+    }
+    .border-glow-card:not(:hover)::before,
+    .border-glow-card:not(:hover)::after,
+    .border-glow-card:not(:hover) > .edge-light {
+      opacity: 0; transition: opacity .75s ease-in-out;
+    }
+    /* 彩色网格渐变边框 */
+    .border-glow-card::before {
+      border: 1px solid transparent;
+      background:
+        linear-gradient(var(--card-bg) 0 100%) padding-box,
+        var(--gradient-one) border-box, var(--gradient-two) border-box,
+        var(--gradient-three) border-box, var(--gradient-four) border-box,
+        var(--gradient-five) border-box, var(--gradient-six) border-box,
+        var(--gradient-seven) border-box, var(--gradient-base) border-box;
+      opacity: calc((var(--edge-proximity) - var(--color-sensitivity)) / (100 - var(--color-sensitivity)));
+      -webkit-mask-image: conic-gradient(from var(--cursor-angle) at center,
+        black calc(var(--cone-spread) * 1%),
+        transparent calc((var(--cone-spread) + 15) * 1%),
+        transparent calc((100 - var(--cone-spread) - 15) * 1%),
+        black calc((100 - var(--cone-spread)) * 1%));
+              mask-image: conic-gradient(from var(--cursor-angle) at center,
+        black calc(var(--cone-spread) * 1%),
+        transparent calc((var(--cone-spread) + 15) * 1%),
+        transparent calc((100 - var(--cone-spread) - 15) * 1%),
+        black calc((100 - var(--cone-spread)) * 1%));
+    }
+    /* 外发光层 */
+    .border-glow-card > .edge-light {
+      inset: calc(var(--glow-padding) * -1);
+      pointer-events: none; z-index: 1;
+      -webkit-mask-image: conic-gradient(from var(--cursor-angle) at center, black 2.5%, transparent 10%, transparent 90%, black 97.5%);
+              mask-image: conic-gradient(from var(--cursor-angle) at center, black 2.5%, transparent 10%, transparent 90%, black 97.5%);
+      opacity: calc((var(--edge-proximity) - var(--edge-sensitivity)) / (100 - var(--edge-sensitivity)));
+      mix-blend-mode: plus-lighter;
+    }
+    .border-glow-card > .edge-light::before {
+      content: ""; position: absolute; inset: var(--glow-padding);
+      border-radius: inherit;
+      box-shadow:
+        inset 0 0 0 1px var(--glow-color),
+        inset 0 0 3px 0 var(--glow-color-50),
+        inset 0 0 6px 0 var(--glow-color-40),
+        inset 0 0 15px 0 var(--glow-color-30),
+        inset 0 0 25px 2px var(--glow-color-20),
+        0 0 3px 0 var(--glow-color-50),
+        0 0 6px 0 var(--glow-color-40),
+        0 0 15px 0 var(--glow-color-30),
+        0 0 25px 2px var(--glow-color-20);
+    }
+    .border-glow-inner {
+      display: flex; align-items: center; justify-content: center;
+      position: relative; z-index: 1;
+    }
+    /* 导航按钮具体尺寸（沿用原“联系我”描边胶囊样式） */
+    .glow-btn {
+      padding: 0;
+      cursor: pointer;
+      font: inherit;
+    }
+    .glow-btn .border-glow-inner {
+      padding: 10px 24px;
+      font-size: 16px;
+      font-weight: 800;
+      letter-spacing: .5px;
+      color: var(--text);
+    }
+
+    /* ===== 项目区块（通用） ===== */
+    .project-section {
+      position: relative;
+      z-index: 6;
+      background: linear-gradient(180deg, #0d0f0a 0%, #0f1418 100%);
+      padding: 100px 40px 120px;
+    }
+    .project-section.alt {
+      background: linear-gradient(180deg, #0f1418 0%, #0c1116 100%);
+    }
+    .project-inner {
+      max-width: 1240px;
+      margin: 0 auto;
+      display: grid;
+      grid-template-columns: 1.15fr .85fr;
+      gap: 56px;
+      align-items: center;
+    }
+
+    /* 左：demo 框（仿浏览器外壳） */
+    .demo-col { min-width: 0; }
+    .demo-frame {
+      border-radius: 16px;
+      overflow: hidden;
+      border: 1px solid rgba(255,255,255,.12);
+      background: #1a1f24;
+      box-shadow: 0 30px 70px rgba(0,0,0,.55), 0 0 0 1px rgba(37,216,255,.08);
+    }
+    .demo-bar {
+      height: 38px;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      padding: 0 14px;
+      background: #20262c;
+      border-bottom: 1px solid rgba(255,255,255,.08);
+    }
+    .demo-bar .dot { width: 11px; height: 11px; border-radius: 50%; }
+    .dot.r { background: #ff5f57; } .dot.y { background: #febc2e; } .dot.g { background: #28c840; }
+    .demo-bar-title {
+      margin-left: 10px; font-size: 12.5px; color: var(--muted);
+      white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+    }
+    /* 视口：内部 iframe 放大渲染再整体缩放，桌面级 UI 也能完整展示 */
+    .demo-viewport {
+      position: relative;
+      width: 100%;
+      aspect-ratio: 1280 / 800;
+      overflow: hidden;
+      background: #0b0e11;
+    }
+    .demo-viewport iframe {
+      position: absolute;
+      top: 0; left: 0;
+      border: 0;
+      transform-origin: top left;   /* 实际像素宽高写在 iframe 内联样式上，缩放比例由脚本按列宽设置 */
+    }
+    .demo-hint {
+      margin-top: 14px;
+      font-size: 13px;
+      color: var(--muted);
+      text-align: center;
+    }
+
+    /* 右：文字 */
+    .text-col { min-width: 0; }
+    .eyebrow {
+      display: inline-block;
+      font-size: 12px; letter-spacing: 2px;
+      color: var(--lime);
+      margin-bottom: 16px;
+    }
+    .proj-title {
+      font-size: clamp(34px, 4vw, 52px);
+      font-weight: 800;
+      line-height: 1.1;
+      color: var(--text);
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+    }
+    .proj-en {
+      font-size: .42em; font-weight: 500; letter-spacing: 1px;
+      color: var(--muted); text-transform: uppercase;
+    }
+    .proj-lead {
+      margin-top: 22px;
+      font-size: 19px; line-height: 1.7;
+      color: var(--text);
+      font-weight: 600;
+    }
+    .proj-body {
+      margin-top: 14px;
+      font-size: 15.5px; line-height: 1.85;
+      color: var(--muted);
+    }
+    .proj-points {
+      margin: 24px 0 0;
+      list-style: none;
+      display: flex; flex-direction: column; gap: 12px;
+    }
+    .proj-points li {
+      position: relative; padding-left: 22px;
+      font-size: 15px; line-height: 1.6; color: var(--muted);
+    }
+    .proj-points li::before {
+      content: ""; position: absolute; left: 0; top: 9px;
+      width: 8px; height: 8px; border-radius: 50%;
+      background: var(--lime); box-shadow: 0 0 10px rgba(37,216,255,.7);
+    }
+    .proj-points b { color: var(--text); font-weight: 700; }
+    .proj-tags {
+      margin-top: 28px; display: flex; flex-wrap: wrap; gap: 10px;
+    }
+    .proj-tags span {
+      font-size: 13px; padding: 6px 14px; border-radius: 30px;
+      border: 1px solid rgba(255,255,255,.18);
+      color: var(--muted);
+      background: rgba(255,255,255,.04);
+    }
+
+    /* 无外壳的 demo（去掉浏览器标题栏后，自身加圆角/描边/阴影），铺满展示区 */
+    .demo-viewport.plain {
+      border-radius: 16px;
+      background: #000;
+      border: 1px solid rgba(255,255,255,.12);
+      box-shadow: 0 30px 70px rgba(0,0,0,.5), 0 0 0 1px rgba(37,216,255,.06);
+    }
+    /* 纯透明：无黑底、无外框，只显示 demo 内部的样机（设备黑边框由 demo 自带） */
+    .demo-viewport.bare {
+      background: transparent;
+      border: 0;
+      box-shadow: none;
+      border-radius: 0;
+      overflow: visible;
+    }
+
+    /* 全屏放大按钮：hover demo 区时右上角出现 */
+    .demo-fs-btn {
+      position: absolute; top: 12px; right: 12px; z-index: 5;
+      width: 38px; height: 38px; border-radius: 11px;
+      border: 1px solid rgba(255,255,255,.25);
+      background: rgba(0,0,0,.5); backdrop-filter: blur(6px);
+      color: #fff; cursor: pointer;
+      display: flex; align-items: center; justify-content: center;
+      opacity: 0; transform: translateY(-4px);
+      transition: opacity .2s, transform .2s, background .2s;
+      pointer-events: none;
+    }
+    .demo-viewport:hover .demo-fs-btn { opacity: 1; transform: none; pointer-events: auto; }
+    .demo-fs-btn:hover { background: var(--lime); color: #052331; border-color: var(--lime); }
+    /* 浏览器内全屏（覆盖浏览器视口，而非整机全屏） */
+    .demo-viewport.expanded {
+      position: fixed; inset: 0; z-index: 9999;
+      width: 100vw; height: 100vh;
+      max-width: none; border-radius: 0; background: #000;
+      aspect-ratio: auto; overflow: hidden;
+    }
+    /* 全屏时 iframe 直接铺满视口、由 demo 自己等比缩放，避免外层换算造成截断 */
+    .demo-viewport.expanded iframe {
+      position: absolute; inset: 0;
+      width: 100% !important; height: 100% !important;
+      transform: none !important;
+    }
+    .demo-viewport.expanded .demo-fs-btn { opacity: 1; pointer-events: auto; }
+
+    /* ===== 外部控制器（紧凑单行，左下方对齐） ===== */
+    .mr-controller {
+      width: fit-content; max-width: 100%;
+      margin: 14px auto 0;
+      padding: 8px 12px;
+      border-radius: 14px;
+      display: flex; flex-wrap: wrap; align-items: center; gap: 7px 8px;
+      background: rgba(255,255,255,.04);
+      border: 1px solid rgba(255,255,255,.12);
+      backdrop-filter: blur(8px);
+    }
+    /* 开发/上线状态徽标 */
+    .proj-top { display: flex; align-items: center; gap: 12px; margin-bottom: 16px; flex-wrap: wrap; }
+    .proj-top .eyebrow { margin-bottom: 0; }
+    .proj-status {
+      font-size: 12px; font-weight: 600; padding: 3px 11px; border-radius: 30px;
+      border: 1px solid transparent; white-space: nowrap;
+      display: inline-flex; align-items: center; gap: 6px;
+    }
+    .proj-status::before { content: ""; width: 6px; height: 6px; border-radius: 50%; background: currentColor; }
+    .s-live { color: #34d399; background: rgba(52,211,153,.12); border-color: rgba(52,211,153,.3); }
+    .s-gray { color: #fbbf24; background: rgba(251,191,36,.12); border-color: rgba(251,191,36,.3); }
+    .s-dev  { color: #60a5fa; background: rgba(96,165,250,.12); border-color: rgba(96,165,250,.3); }
+    .mrc-head { display: none; }   /* 紧凑模式不显示标题 */
+    .mrc-cap { font-size: 13px; color: var(--muted); white-space: nowrap; }
+    /* eShare 控制器：数字按钮 + 相对弹窗居中 */
+    .eshare-ctl { margin-left: auto; margin-right: auto; }
+    .eshare-ctl .mrc-modes button { min-width: 38px; padding: 5px 0; }
+    .mrc-modes {
+      display: flex; gap: 3px; padding: 3px;
+      background: rgba(0,0,0,.3); border-radius: 30px;
+    }
+    .mrc-modes button {
+      padding: 5px 11px; border: 0; cursor: pointer;
+      border-radius: 30px; font-size: 12px; font-weight: 600;
+      color: var(--muted); background: transparent; white-space: nowrap;
+      transition: all .25s;
+    }
+    .mrc-modes button:hover { color: var(--text); }
+    .mrc-modes button.active {
+      background: var(--lime); color: #052331;
+      box-shadow: 0 0 14px rgba(37,216,255,.5);
+    }
+    .mrc-counters { display: flex; flex-direction: row; flex-wrap: wrap; gap: 6px; }
+    .mrc-row {
+      display: flex; align-items: center; gap: 6px;
+      padding: 4px 8px; border-radius: 10px;
+      background: rgba(255,255,255,.03);
+      border: 1px solid transparent;
+      transition: border-color .25s, background .25s;
+    }
+    .mrc-row.on { background: rgba(37,216,255,.07); border-color: rgba(37,216,255,.25); }
+    .mrc-dot { width: 7px; height: 7px; border-radius: 50%; flex-shrink: 0; }
+    .c-red { background: #ff5f57; box-shadow: 0 0 6px #ff5f57; }
+    .c-orange { background: #ff9f43; box-shadow: 0 0 6px #ff9f43; }
+    .c-amber { background: #ffd24a; box-shadow: 0 0 6px #ffd24a; }
+    .mrc-label { font-size: 12px; color: var(--text); white-space: nowrap; }
+    .mrc-step { display: flex; align-items: center; gap: 3px; }
+    .mrc-step button {
+      width: 20px; height: 20px; border-radius: 50%;
+      border: 1px solid rgba(255,255,255,.2);
+      background: rgba(255,255,255,.06); color: var(--text);
+      font-size: 13px; line-height: 1; cursor: pointer;
+      display: flex; align-items: center; justify-content: center;
+      transition: all .2s;
+    }
+    .mrc-step button:hover { background: var(--lime); color: #052331; border-color: var(--lime); }
+    .mrc-step button:disabled { opacity: .3; cursor: not-allowed; }
+    .mrc-step button:disabled:hover { background: rgba(255,255,255,.06); color: var(--text); border-color: rgba(255,255,255,.2); }
+    .mrc-val { width: 15px; text-align: center; font-size: 12px; font-weight: 700; font-variant-numeric: tabular-nums; color: var(--text); }
+    .mrc-reset {
+      margin-left: 2px; padding: 6px 12px;
+      border-radius: 20px; cursor: pointer;
+      border: 1px solid rgba(255,255,255,.18);
+      background: rgba(255,255,255,.04); color: var(--muted);
+      font-size: 12px; white-space: nowrap; transition: all .2s;
+    }
+    .mrc-reset:hover { color: var(--text); border-color: rgba(255,255,255,.4); }
+
+    /* layout 控制器：参会人数滑块 */
+    .layout-ctl .lc-slider { width: 110px; height: 4px; border-radius: 4px; -webkit-appearance: none; appearance: none; background: rgba(255,255,255,.18); cursor: pointer; }
+    .layout-ctl .lc-slider::-webkit-slider-thumb { -webkit-appearance: none; appearance: none; width: 14px; height: 14px; border-radius: 50%; background: var(--lime); box-shadow: 0 0 8px rgba(37,216,255,.6); cursor: pointer; }
+    .layout-ctl .lc-slider::-moz-range-thumb { width: 14px; height: 14px; border: 0; border-radius: 50%; background: var(--lime); cursor: pointer; }
+    .layout-ctl .lc-count { font-size: 12px; font-weight: 700; font-variant-numeric: tabular-nums; color: var(--lime); min-width: 18px; text-align: center; }
+
+    /* 移动端 */
+    @media (max-width: 640px) {
+      .nav { padding: 16px 20px; }
+      .nav-links { display: none; }
+      .hero { padding: 0 24px; }
+      :root { --card-w: 200px; --card-h: 125px; }
+    }
+    @media (max-width: 900px) {
+      .project-inner { grid-template-columns: 1fr; gap: 36px; }
+      .project-section { padding: 70px 22px 90px; }
+    }
+    /* ===== 查看详情按钮 + 详情大弹窗 ===== */
+    .detail-btn {
+      display: none;   /* 暂不上线：隐藏所有「查看设计/详情」入口（弹窗代码保留，删此行即可重新启用） */
+      margin-top: 22px; align-self: flex-start;
+      padding: 10px 22px; border-radius: 30px; cursor: pointer;
+      font-size: 14px; font-weight: 600; color: #052331;
+      background: var(--lime); border: 0;
+      box-shadow: 0 0 22px rgba(37,216,255,.45);
+      transition: transform .2s, box-shadow .2s;
+    }
+    .detail-btn:hover { transform: translateY(-2px); box-shadow: 0 6px 28px rgba(37,216,255,.6); }
+
+    .detail-overlay {
+      position: fixed; inset: 0; z-index: 10000;
+      display: none; align-items: center; justify-content: center;
+      padding: 28px;
+      background: rgba(6,9,13,.72); backdrop-filter: blur(8px);
+    }
+    .detail-overlay.on { display: flex; }
+    .detail-modal {
+      position: relative;
+      width: min(960px, 100%); max-height: 88vh;
+      display: flex; flex-direction: column;
+      background: linear-gradient(180deg, #12181f 0%, #0d1217 100%);
+      border: 1px solid rgba(255,255,255,.12);
+      border-radius: 20px; overflow: hidden;
+      box-shadow: 0 40px 120px rgba(0,0,0,.6), inset 0 0 0 1px rgba(37,216,255,.06);
+    }
+    .detail-close {
+      position: absolute; top: 14px; right: 14px; z-index: 2;
+      width: 34px; height: 34px; border-radius: 50%; cursor: pointer;
+      border: 1px solid rgba(255,255,255,.2); background: rgba(255,255,255,.06);
+      color: var(--text); font-size: 15px; line-height: 1;
+    }
+    .detail-close:hover { background: rgba(255,255,255,.14); }
+    .detail-head { padding: 24px 28px 0; }
+    .detail-kicker { font-size: 12px; letter-spacing: 1.5px; color: var(--lime); text-transform: uppercase; }
+    .detail-title { margin: 10px 0 18px; font-size: clamp(18px,2.4vw,24px); font-weight: 800; color: var(--text); line-height: 1.4; }
+    .detail-title em { font-style: normal; color: var(--lime); }
+    .detail-tabs { display: flex; gap: 6px; border-bottom: 1px solid rgba(255,255,255,.1); }
+    .detail-tabs .dt {
+      padding: 10px 16px; border: 0; background: transparent; cursor: pointer;
+      color: var(--muted); font-size: 14px; font-weight: 600;
+      border-bottom: 2px solid transparent; margin-bottom: -1px; transition: color .2s, border-color .2s;
+    }
+    .detail-tabs .dt:hover { color: var(--text); }
+    .detail-tabs .dt.active { color: var(--lime); border-bottom-color: var(--lime); }
+
+    .detail-body { padding: 22px 28px; overflow-y: auto; }
+    .detail-page { display: none; flex-direction: column; gap: 14px; }
+    .detail-page.active { display: flex; }
+    .dgrid2 { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; }
+    .dcard {
+      background: rgba(255,255,255,.035); border: 1px solid rgba(255,255,255,.09);
+      border-radius: 14px; padding: 16px 18px;
+    }
+    .dh { font-size: 14px; font-weight: 700; color: var(--lime); margin-bottom: 12px; }
+    .dlist { margin: 0; padding-left: 18px; display: flex; flex-direction: column; gap: 9px; }
+    .dlist li { font-size: 14px; line-height: 1.65; color: var(--muted); }
+    .dlist.dnum { padding-left: 20px; }
+    .dlist b, .dcard b { color: var(--text); font-weight: 700; }
+    .dkv { font-size: 14px; color: var(--muted); line-height: 1.9; }
+    .dbig { font-size: 15px; color: var(--text); line-height: 1.7; }
+    .drow { display: flex; gap: 12px; align-items: flex-start; padding: 9px 0; border-top: 1px dashed rgba(255,255,255,.08); }
+    .drow:first-of-type { border-top: 0; }
+    .dtag {
+      flex: 0 0 auto; font-size: 12px; font-weight: 700; color: var(--lime);
+      background: rgba(37,216,255,.1); border: 1px solid rgba(37,216,255,.28);
+      padding: 4px 10px; border-radius: 8px; white-space: nowrap; margin-top: 1px;
+    }
+    .drow p { font-size: 14px; line-height: 1.6; color: var(--muted); }
+    /* before/after */
+    .dba { display: flex; align-items: stretch; gap: 12px; }
+    .dba-col { flex: 1; background: rgba(255,255,255,.03); border: 1px solid rgba(255,255,255,.1); border-radius: 12px; padding: 14px; }
+    .dba-col.on { border-color: rgba(37,216,255,.35); background: rgba(37,216,255,.06); }
+    .dba-label { display: inline-block; font-size: 12px; font-weight: 700; color: var(--muted); margin-bottom: 8px; }
+    .dba-col.on .dba-label { color: var(--lime); }
+    .dba-col p { font-size: 13.5px; line-height: 1.6; color: var(--muted); }
+    .dba-arrow { align-self: center; color: var(--lime); font-size: 22px; }
+    /* table */
+    .dtable { width: 100%; border-collapse: collapse; font-size: 13.5px; }
+    .dtable th, .dtable td { text-align: left; padding: 8px 6px; border-bottom: 1px solid rgba(255,255,255,.08); color: var(--muted); }
+    .dtable th { color: var(--text); font-weight: 700; font-size: 12.5px; }
+    .dtable td:nth-child(3) { color: var(--lime); font-weight: 700; }
+    .dnote { margin-top: 12px; font-size: 13px; line-height: 1.6; color: var(--muted); }
+    /* stats */
+    .dstats { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+    .dstat { background: rgba(37,216,255,.06); border: 1px solid rgba(37,216,255,.2); border-radius: 12px; padding: 12px 14px; }
+    .dstat b { display: block; font-size: 19px; color: var(--lime); }
+    .dstat span { font-size: 12px; color: var(--muted); }
+
+    .detail-foot {
+      display: flex; align-items: center; justify-content: space-between;
+      padding: 14px 28px; border-top: 1px solid rgba(255,255,255,.1);
+    }
+    .dnav {
+      padding: 8px 16px; border-radius: 30px; cursor: pointer; font-size: 13px;
+      border: 1px solid rgba(255,255,255,.2); background: rgba(255,255,255,.05); color: var(--text);
+    }
+    .dnav:hover:not(:disabled) { border-color: var(--lime); color: var(--lime); }
+    .dnav:disabled { opacity: .3; cursor: not-allowed; }
+    .ddots { display: flex; gap: 8px; }
+    .ddots .dd { width: 8px; height: 8px; border-radius: 50%; background: rgba(255,255,255,.25); }
+    .ddots .dd.active { background: var(--lime); box-shadow: 0 0 10px rgba(37,216,255,.7); }
+
+    @media (max-width: 640px) {
+      .dgrid2, .dstats { grid-template-columns: 1fr; }
+      .dba { flex-direction: column; }
+      .dba-arrow { transform: rotate(90deg); }
+    }
+  </style>
+</head>
+<body>
+  <!-- ===== 访问密码门（隐藏链接 + 口令）===== -->
+  <div id="pwGate" style="position:fixed;inset:0;z-index:99999;display:flex;align-items:center;justify-content:center;background:#0b0f14;">
+    <div id="pwBox" style="width:min(90vw,340px);text-align:center;font-family:'Roboto Flex',system-ui,sans-serif;">
+      <div style="font-size:34px;font-weight:800;letter-spacing:.12em;color:#9fd2ff;">CHENYU</div>
+      <div style="font-size:13px;letter-spacing:.3em;color:#5b7088;margin:6px 0 26px;">PORTFOLIO</div>
+      <div style="font-size:14px;color:#8aa0b6;margin-bottom:14px;">请输入访问口令</div>
+      <input id="pwInput" type="password" inputmode="numeric" autocomplete="off" placeholder="口令"
+        style="width:100%;box-sizing:border-box;padding:12px 14px;border-radius:12px;border:1px solid rgba(255,255,255,.16);background:rgba(255,255,255,.05);color:#fff;font-size:16px;outline:none;text-align:center;letter-spacing:.2em;" />
+      <button id="pwBtn" style="width:100%;margin-top:12px;padding:12px;border:0;border-radius:12px;cursor:pointer;background:#25d8ff;color:#052331;font-size:15px;font-weight:700;">进入</button>
+      <div id="pwErr" style="height:18px;margin-top:10px;font-size:13px;color:#ff6b6b;opacity:0;transition:opacity .2s;">口令不对，再试试</div>
+    </div>
+  </div>
+  <script>
+    (function () {
+      var KEY = 'cy_portfolio_ok', PASS = 'MjAyNjA2MjI='; // base64('20260622')
+      var gate = document.getElementById('pwGate'), inp = document.getElementById('pwInput'),
+          btn = document.getElementById('pwBtn'), err = document.getElementById('pwErr'), box = document.getElementById('pwBox');
+      function unlock() {
+        try { localStorage.setItem(KEY, '1'); } catch (e) {}
+        gate.style.transition = 'opacity .4s'; gate.style.opacity = '0';
+        setTimeout(function () { gate.remove(); }, 420);
+      }
+      try { if (localStorage.getItem(KEY) === '1') { gate.remove(); return; } } catch (e) {}
+      document.documentElement.style.overflow = 'hidden';
+      function tryPass() {
+        var ok = false; try { ok = btoa(inp.value.trim()) === PASS; } catch (e) {}
+        if (ok) { document.documentElement.style.overflow = ''; unlock(); }
+        else { err.style.opacity = '1'; box.style.transform = 'translateX(0)';
+          box.animate([{transform:'translateX(-8px)'},{transform:'translateX(8px)'},{transform:'translateX(0)'}], {duration:240}); inp.select(); }
+      }
+      btn.addEventListener('click', tryPass);
+      inp.addEventListener('keydown', function (e) { if (e.key === 'Enter') tryPass(); });
+      setTimeout(function () { inp.focus(); }, 100);
+    })();
+  </script>
+
+  <div class="stage">
+    <!-- 背景层 -->
+    <div class="bg"></div>
+    <div class="bg-vignette"></div>
+    <!-- 首屏 DotGrid 点阵背景 -->
+    <canvas class="dotgrid-bg" id="heroDots"></canvas>
+
+    <!-- 顶部导航：只留一个按钮（BorderGlow 边缘辉光动效） -->
+    <nav class="nav">
+      <button class="border-glow-card glow-btn" id="glowBtn" type="button">
+        <span class="edge-light"></span>
+        <span class="border-glow-inner">🌧️ CHENYU</span>
+      </button>
+    </nav>
+
+    <!-- 中央大标题：CHENYU（TextPressure 挤压动效） -->
+    <header class="hero">
+      <div class="pressure-wrap">
+        <h1 class="pressure-title" id="pressureTitle" aria-label="CHENYU">
+          <!-- 字母由脚本生成 -->
+        </h1>
+      </div>
+      <div class="hero-sub">PORTFOLIO</div>
+    </header>
+
+    <!-- 底部悬浮滚动卡片 -->
+    <div class="cards-rail">
+      <!-- 卡片由脚本按屏幕宽度铺满并复制，保证永远无缝循环 -->
+      <div class="cards-track" id="cardsTrack"></div>
+    </div>
+  </div>
+
+  <!-- ===== 项目区块：会议室 3.0 · 情感（视觉升级） ===== -->
+  <section class="project-section" id="meeting-emotion">
+    <div class="project-inner">
+      <!-- 左：大屏视觉循环动画（透明底，保留样机） -->
+      <div class="demo-col">
+        <div class="demo-viewport bare" data-base="1984" style="aspect-ratio:1984/1144;">
+          <iframe id="emotionFrame" src="demos/welink-screen/index.html"
+                  style="width:1984px;height:1144px;background:transparent;"
+                  title="会议室 3.0 大屏视觉动效" loading="lazy"></iframe>
+          <button class="demo-fs-btn" title="全屏体验" aria-label="全屏">
+            <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M8 3H5a2 2 0 0 0-2 2v3m18 0V5a2 2 0 0 0-2-2h-3M8 21H5a2 2 0 0 1-2-2v-3m18 0v3a2 2 0 0 1-2 2h-3"/></svg>
+          </button>
+        </div>
+      </div>
+
+      <!-- 右：文字介绍 -->
+      <div class="text-col">
+        <div class="proj-top">
+          <span class="eyebrow">PROJECT 01 · 情感</span>
+          <span class="proj-status s-gray">已灰度</span>
+        </div>
+        <h2 class="proj-title">会议室 3.0 · 情感提升</h2>
+        <p class="proj-lead">
+          在体感、智感之上，用一套会呼吸的大屏视觉，让会议室更有温度、更有辨识度。
+        </p>
+        <p class="proj-body">
+          重做大屏首页的视觉系统：水天一色与星空全球窗交替呼吸、品牌色卡片自下而上浮出——
+          把冷冰冰的设备界面，变成一块"想多看一眼"的品牌大屏。
+        </p>
+        <div class="proj-tags">
+          <span>视觉系统</span><span>大屏动效</span><span>品牌升级</span><span>情感化设计</span>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ===== 项目区块：会议 AI 听 ===== -->
+  <section class="project-section alt" id="ai-listening">
+    <div class="project-inner">
+      <!-- 左：可交互 HTML demo（无外壳/无标题栏） -->
+      <div class="demo-col">
+        <div class="demo-viewport plain" data-base="1280" style="aspect-ratio:1280/800;">
+          <iframe id="alFrame" src="demos/ai-listening/index.html" style="width:1280px;height:800px;"
+                  title="会议 AI 听 可交互 Demo" loading="lazy"></iframe>
+          <button class="demo-fs-btn" title="全屏体验" aria-label="全屏">
+            <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M8 3H5a2 2 0 0 0-2 2v3m18 0V5a2 2 0 0 0-2-2h-3M8 21H5a2 2 0 0 1-2-2v-3m18 0v3a2 2 0 0 1-2 2h-3"/></svg>
+          </button>
+        </div>
+        <!-- 控制器：图文纪要 / AI 问答 一键演示 -->
+        <div class="mr-controller al-ctl" data-frame="alFrame">
+          <div class="mrc-modes">
+            <button data-al="graphic" class="active">图文纪要</button>
+            <button data-al="qa">AI 问答</button>
+          </div>
+        </div>
+      </div>
+
+      <!-- 右：文字介绍 -->
+      <div class="text-col">
+        <div class="proj-top">
+          <span class="eyebrow">PROJECT 02 · AI 能力</span>
+          <span class="proj-status s-dev">开发中</span>
+        </div>
+        <h2 class="proj-title">会议 AI 纪要能力升级</h2>
+        <p class="proj-lead">
+          让一场三小时的会议，沉淀成可检索、可复用、可追溯的结构化知识。
+        </p>
+        <p class="proj-body">
+          面向 Meeting 会议场景的 AI 听记系统。<br>
+          主导的关键设计：把纯文本纪要升级为「图文纪要」让信息一眼可读；把藏在侧边栏、
+          没人用的「小微」入口重做成顶部悬浮胶囊，用轮播 + Top 问答把 AI 能力推到用户眼前。
+        </p>
+        <ul class="proj-points">
+          <li><b>图文纪要</b>——纯文本纪要 → 图文卡片，可视化更直观</li>
+          <li><b>小微悬浮胶囊</b>——侧边栏入口 → 顶部胶囊，轮播曝光 + 3 类高频问答</li>
+        </ul>
+        <button class="detail-btn" type="button" data-detail="aiListenDetail">查看设计 &amp; 我的贡献 &nbsp;→</button>
+        <div class="proj-tags">
+          <span>图文纪要</span><span>信息结构化</span><span>数据驱动</span><span>交互设计</span>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ===== 会议 AI 听 · 设计与贡献大弹窗（2 页） ===== -->
+  <div class="detail-overlay" id="aiListenDetail" aria-hidden="true">
+    <div class="detail-modal" role="dialog" aria-modal="true">
+      <button class="detail-close" aria-label="关闭">✕</button>
+      <div class="detail-head">
+        <div class="detail-kicker">会议 AI 听 · 设计与我的贡献</div>
+        <h3 class="detail-title">两处关键设计：<em>图文纪要</em> &amp; <em>小微悬浮胶囊</em></h3>
+        <div class="detail-tabs">
+          <button class="dt active" data-page="0">① 图文纪要</button>
+          <button class="dt" data-page="1">② 小微 → 悬浮胶囊</button>
+        </div>
+      </div>
+      <div class="detail-body">
+        <!-- 第 1 页：图文纪要 -->
+        <section class="detail-page active" data-page="0">
+          <div class="dcard">
+            <div class="dh">设计目标</div>
+            <p class="dbig">从<b>纯文本纪要</b> → <b>图文纪要</b>，让会议结论可视化、更直观、可扫读。</p>
+          </div>
+          <div class="dgrid2">
+            <div class="dcard">
+              <div class="dh">改动前</div>
+              <p>大段纯文字纪要，信息平铺、重点不突出，读完一场长会成本高、不愿回看。</p>
+            </div>
+            <div class="dcard">
+              <div class="dh">改动后</div>
+              <p>按议题分段，把结论 / 决策 / 待办组织成<b>图文要点卡片</b>，配图示与缩略图，随议题动态更新，一眼读懂。</p>
+            </div>
+          </div>
+          <div class="dcard dnote-card">
+            <div class="dh">我的贡献</div>
+            <p class="dbig" style="color:var(--muted)">（这部分你上次没展开，先放一版我的推断，你确认/补充：）</p>
+            <ul class="dlist">
+              <li>定义「图文要点」的信息结构与卡片样式，把转写结论翻译成可视化模块。</li>
+              <li>设计图文要点随<b>议题分段</b>动态更新的交互，让纪要与时间轴联动。</li>
+            </ul>
+          </div>
+        </section>
+
+        <!-- 第 2 页：小微 → 悬浮胶囊 -->
+        <section class="detail-page" data-page="1">
+          <div class="dcard">
+            <div class="dh">改动背景</div>
+            <ul class="dlist">
+              <li>很多人不用「小微」——能力差，改动前入口就只是侧边栏里「小微助手」四个字。</li>
+              <li>2–3 月数据发现用户其实<b>用得很多</b>，于是赶紧做能力升级。</li>
+            </ul>
+          </div>
+          <div class="dgrid2">
+            <div class="dcard">
+              <div class="dh">遇到的问题</div>
+              <ol class="dlist dnum">
+                <li>用户不信任小微，习惯<b>关闭侧边栏</b> → 新功能上线后用户<b>无感知</b>。</li>
+                <li>到底先上<b>什么问答能力</b>？</li>
+              </ol>
+            </div>
+            <div class="dcard">
+              <div class="dh">我的解法</div>
+              <div class="drow"><span class="dtag">解决无感知</span><p>入口从侧边栏改成<b>顶部悬浮胶囊</b>，并用<b>轮播</b>把关键内容/新能力滚动曝光在用户眼前。</p></div>
+              <div class="drow"><span class="dtag">先上什么</span><p>做<b>数据分析</b>，归纳出 3 类 Top 高频诉求，优先上线这三个。</p></div>
+            </div>
+          </div>
+          <div class="dcard">
+            <div class="dh">数据分析 → 首批上线的 3 类问答</div>
+            <div class="dstats" style="grid-template-columns:repeat(3,1fr)">
+              <div class="dstat"><b>知识类</b><span>知识类问答</span></div>
+              <div class="dstat"><b>找某人</b><span>问与某人相关的总结</span></div>
+              <div class="dstat"><b>找我的</b><span>问与我相关的任务</span></div>
+            </div>
+          </div>
+        </section>
+      </div>
+      <div class="detail-foot">
+        <button class="dnav dprev">← 上一页</button>
+        <div class="ddots"><span class="dd active"></span><span class="dd"></span></div>
+        <button class="dnav dnext">下一页 →</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ===== 项目区块：AI 翻译 ===== -->
+  <section class="project-section" id="ai-translation">
+    <div class="project-inner">
+      <!-- 左：电子屏直接进入「翻译」页（无控制器、无屏幕形态切换） -->
+      <div class="demo-col">
+        <div class="demo-viewport bare" data-base="1984" style="aspect-ratio:1984/1144;">
+          <iframe id="transFrame" src="demos/meeting-room/index.html?view=translation"
+                  style="width:1984px;height:1144px;background:transparent;"
+                  title="AI 翻译大屏 Demo" loading="lazy"></iframe>
+          <button class="demo-fs-btn" title="全屏体验" aria-label="全屏">
+            <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M8 3H5a2 2 0 0 0-2 2v3m18 0V5a2 2 0 0 0-2-2h-3M8 21H5a2 2 0 0 1-2-2v-3m18 0v3a2 2 0 0 1-2 2h-3"/></svg>
+          </button>
+        </div>
+        <!-- 控制器：翻译场景一键预览（不带 data-target，避免被通用控制器接管） -->
+        <div class="mr-controller trans-ctl" data-frame="transFrame">
+          <div class="mrc-modes">
+            <button data-preset="reset" class="active">全屏翻译</button>
+            <button data-preset="home">回到首页</button>
+            <button data-preset="meeting">会中看翻译</button>
+            <button data-preset="share">共享中看翻译</button>
+          </div>
+        </div>
+      </div>
+
+      <!-- 右：文字介绍 -->
+      <div class="text-col">
+        <div class="proj-top">
+          <span class="eyebrow">PROJECT 03 · 智感</span>
+          <span class="proj-status s-gray">已灰度</span>
+        </div>
+        <h2 class="proj-title">大屏 AI 翻译</h2>
+        <p class="proj-lead">
+          会议室大屏上的实时双语字幕，让跨语言会议不再有信息差。
+        </p>
+        <p class="proj-body">
+          一键开启实时翻译：原文与译文逐句对照、可调字号与语种、随会议常驻——
+          把"听不懂"挡在门外，让每个人都跟得上同一场讨论。
+        </p>
+        <div class="proj-tags">
+          <span>实时翻译</span><span>双语字幕</span><span>跨语言会议</span><span>大屏交互</span>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ===== 项目区块：TRIZ × eShare AI 无线投影 ===== -->
+  <section class="project-section alt" id="eshare">
+    <div class="project-inner">
+      <!-- 左：可交互 eShare 投影 demo（自带状态控制器） -->
+      <div class="demo-col">
+        <div class="demo-viewport bare" data-base="1100" style="aspect-ratio:1100/720;">
+          <iframe id="eshareFrame" src="demos/eshare/index.html"
+                  style="width:1100px;height:720px;background:transparent;"
+                  title="eShare 无线投影 Demo" loading="lazy"></iframe>
+          <button class="demo-fs-btn" title="全屏体验" aria-label="全屏">
+            <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M8 3H5a2 2 0 0 0-2 2v3m18 0V5a2 2 0 0 0-2-2h-3M8 21H5a2 2 0 0 1-2-2v-3m18 0v3a2 2 0 0 1-2 2h-3"/></svg>
+          </button>
+        </div>
+        <!-- 控制器：大屏左下方，切换识别到的投影码数量 -->
+        <div class="mr-controller eshare-ctl">
+          <span class="mrc-cap">识别到的投影码数量</span>
+          <div class="mrc-modes" role="tablist">
+            <button data-count="0" class="active">0</button>
+            <button data-count="1">1</button>
+            <button data-count="2">2</button>
+            <button data-count="3">3</button>
+          </div>
+        </div>
+      </div>
+
+      <!-- 右：文字介绍 -->
+      <div class="text-col">
+        <div class="proj-top">
+          <span class="eyebrow">PROJECT 04 · TRIZ 求解</span>
+          <span class="proj-status s-live">已上线</span>
+        </div>
+        <h2 class="proj-title">eShare · AI 无线投影</h2>
+        <p class="proj-lead">
+          用 TRIZ 发明原理求解"投屏码又难记又难输"的老大难，让无线投影一步到位。
+        </p>
+        <p class="proj-body">
+          以 TRIZ 矛盾矩阵拆解投影痛点，设计 AI 自动识别投影码方案：识别到几个屏就给几个选项，
+          点一下直接投——告别手输六位码。左侧 demo 可切换识别状态，体验不同场景下的交互。
+        </p>
+        <button class="detail-btn" type="button" data-detail="eshareDetail">查看完整方案 &nbsp;→</button>
+        <div class="proj-tags">
+          <span>TRIZ 求解</span><span>AI 识别</span><span>无线投影</span><span>交互原型</span>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ===== eShare TRIZ 求解 · 详情大弹窗（3 页） ===== -->
+  <div class="detail-overlay" id="eshareDetail" aria-hidden="true">
+    <div class="detail-modal" role="dialog" aria-modal="true">
+      <button class="detail-close" id="eshareDetailClose" aria-label="关闭">✕</button>
+      <div class="detail-head">
+        <div class="detail-kicker">TRIZ 求解 · eShare AI 投影智感体验提升</div>
+        <h3 class="detail-title">多设备多权限一触即连，PIN 推荐准确率 <em>78% → 97%</em></h3>
+        <div class="detail-tabs">
+          <button class="dt active" data-page="0">背景 &amp; 痛点</button>
+          <button class="dt" data-page="1">TRIZ 方案求解</button>
+          <button class="dt" data-page="2">前后对比 &amp; 上线效果</button>
+        </div>
+      </div>
+      <div class="detail-body">
+        <!-- 第 1 页：背景 + before -->
+        <section class="detail-page active" data-page="0">
+          <div class="dgrid2">
+            <div class="dcard">
+              <div class="dh">背景 &amp; 数据埋点</div>
+              <ul class="dlist">
+                <li>AP 与白板存在<b>一对多</b>的情况，自动识别准确率不足，技术达到上限。</li>
+                <li>「换一个 / 清空」操作的用户心智强势存在（<b>周使用量 1.5W+</b>）。</li>
+              </ul>
+            </div>
+            <div class="dcard">
+              <div class="dh">用户投诉 / 高频 VOC</div>
+              <ol class="dlist dnum">
+                <li>总是错误投屏到隔壁会议室，担心<b>信息安全</b>。</li>
+                <li>推荐的 PIN 不准，还不如直接输。</li>
+                <li>习惯手动输，每次都要点「清空」。</li>
+                <li>别人错投导致自己开会被莫名打断，影响效率与情绪。</li>
+                <li>识别不准，需要一直换着尝试，最终也不一定对。</li>
+              </ol>
+            </div>
+          </div>
+        </section>
+
+        <!-- 第 2 页：方案求解 -->
+        <section class="detail-page" data-page="1">
+          <div class="dcard">
+            <div class="dh">设计目标</div>
+            <ul class="dlist">
+              <li>保证已有体验不下降，交互、信息<b>极简</b>。</li>
+              <li>适时展示<b>多个 PIN</b>。</li>
+              <li>在已有框架下保证极简，同时显示更多信息。</li>
+            </ul>
+          </div>
+          <div class="dgrid2">
+            <div class="dcard">
+              <div class="dh">技术矛盾</div>
+              <p class="dkv">改善参数 · <b>26 物质 / 事物的总量</b></p>
+              <p class="dkv">恶化参数 · <b>36 系统的复杂性</b></p>
+            </div>
+            <div class="dcard">
+              <div class="dh">物理矛盾</div>
+              <p class="dbig">既想<b>简洁</b>，又想<b>多展示信息</b>。</p>
+            </div>
+          </div>
+          <div class="dcard">
+            <div class="dh">矛盾矩阵 → 解决方案</div>
+            <div class="drow"><span class="dtag">3 局部质量</span><p>改变局部状态，定义 PIN 区更丰富功能，满足手动 / 自动 PIN 场景。</p></div>
+            <div class="drow"><span class="dtag">13 反向作用</span><p>默认填充的固定内容变为可选 / 可手动填写，避免多余操作。</p></div>
+            <div class="drow"><span class="dtag">10 预先作用</span><p>启动应用即完成 PIN 推荐并展示，与用户操作形成连贯旅程。</p></div>
+          </div>
+          <div class="dcard">
+            <div class="dh">分离原理 → 解决方案</div>
+            <div class="drow"><span class="dtag">时间分离</span><p>时序性动效：不存在 AI PIN 时，保持手动方案不动。</p></div>
+            <div class="drow"><span class="dtag">整体 / 部分分离</span><p>AI PIN 与输入框作为整体保证页面简洁，内部支持两种用户习惯。</p></div>
+          </div>
+        </section>
+
+        <!-- 第 3 页：前后对比 + 上线效果 -->
+        <section class="detail-page" data-page="2">
+          <div class="dcard">
+            <div class="dh">优化方案前后对比</div>
+            <div class="dba">
+              <div class="dba-col"><span class="dba-label">优化前</span><p>手动输入 6 位投影码；一对多识别准确率低，频繁「换一个 / 清空」。</p></div>
+              <div class="dba-arrow">→</div>
+              <div class="dba-col on"><span class="dba-label">优化后</span><p>启动即智能识别、AI PIN 推荐，最多 3 个备选一触即连，可手动可自动。</p></div>
+            </div>
+          </div>
+          <div class="dgrid2">
+            <div class="dcard">
+              <div class="dh">运营数据 · 推导演进</div>
+              <table class="dtable">
+                <thead><tr><th>场景（大屏 / AP）</th><th>数量</th><th>占比</th></tr></thead>
+                <tbody>
+                  <tr><td>1 PIN</td><td>25,085</td><td>70.52%</td></tr>
+                  <tr><td>2 PIN</td><td>7,706</td><td>21.67%</td></tr>
+                  <tr><td>3 PIN</td><td>2,122</td><td>5.97%</td></tr>
+                  <tr><td>4+ PIN</td><td>657</td><td>1.18%</td></tr>
+                </tbody>
+              </table>
+              <p class="dnote">从设备角度提供<b>最多 3 个</b>备选 → PIN 直接可用率 <b>70.52% → 98.16%</b>。</p>
+            </div>
+            <div class="dcard">
+              <div class="dh">上线效果 · 数据验证</div>
+              <div class="dstats">
+                <div class="dstat"><b>78% → 97%</b><span>首眼 AI PIN 推荐准确率</span></div>
+                <div class="dstat"><b>大量 → 0</b><span>VIP 投诉单</span></div>
+                <div class="dstat"><b>515,436</b><span>覆盖设备数</span></div>
+                <div class="dstat"><b>10w+</b><span>周均使用设备</span></div>
+              </div>
+              <p class="dnote">得到广泛用户好评及领导认可。</p>
+            </div>
+          </div>
+        </section>
+      </div>
+      <div class="detail-foot">
+        <button class="dnav dprev">← 上一页</button>
+        <div class="ddots"><span class="dd active"></span><span class="dd"></span><span class="dd"></span></div>
+        <button class="dnav dnext">下一页 →</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ===== 项目区块：智能画面布局 ===== -->
+  <section class="project-section" id="layout">
+    <div class="project-inner">
+      <!-- 左：大屏 + 左下方控制器（参会人数 / 发言人 / 区域） -->
+      <div class="demo-col">
+        <div class="demo-viewport bare" data-base="1984" style="aspect-ratio:1984/1144;">
+          <iframe id="layoutFrame" src="demos/layout/index.html?embed=1"
+                  style="width:1984px;height:1144px;background:transparent;"
+                  title="智能画面布局 Demo" loading="lazy"></iframe>
+          <button class="demo-fs-btn" title="全屏体验" aria-label="全屏">
+            <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M8 3H5a2 2 0 0 0-2 2v3m18 0V5a2 2 0 0 0-2-2h-3M8 21H5a2 2 0 0 1-2-2v-3m18 0v3a2 2 0 0 1-2 2h-3"/></svg>
+          </button>
+        </div>
+        <!-- 控制器：调参会人数 / 发言人数 / 辅助区域，A1 A2 即时重排 -->
+        <div class="mr-controller layout-ctl" data-frame="layoutFrame">
+          <span class="mrc-cap">参会人数</span>
+          <input type="range" class="lc-slider" min="1" max="20" value="8" aria-label="参会人数">
+          <span class="lc-count">8</span>
+          <div class="mrc-modes" data-group="speaker">
+            <button data-top="1" class="active">发言1人</button>
+            <button data-top="2">发言2人</button>
+          </div>
+          <div class="mrc-modes" data-group="region">
+            <button data-toggle="hasDock">Dock栏</button>
+            <button data-toggle="hasSubtitle">字幕</button>
+          </div>
+        </div>
+      </div>
+
+      <!-- 右：文字介绍 -->
+      <div class="text-col">
+        <div class="proj-top">
+          <span class="eyebrow">PROJECT 05 · 智感</span>
+          <span class="proj-status s-live">已上线</span>
+        </div>
+        <h2 class="proj-title">会议智能画面视图</h2>
+        <p class="proj-lead">
+          参会人数一变，发言人区与观众席自动重排——大屏始终把当前发言人放在 C 位。
+        </p>
+        <p class="proj-body">
+          会议室大屏的视频画面布局：随参会人数动态调整发言人区与观众区的排布，
+          发言人居中放大、观众席自动分排，超出容量时折叠为「共 N 人」。
+          用左下角控制器调人数、发言人数与辅助区域，大屏即时重排。
+        </p>
+        <div class="proj-tags">
+          <span>画面布局</span><span>自动排版</span><span>发言人优先</span><span>交互原型</span>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ===== 项目区块：会议稳定性治理 ===== -->
+  <section class="project-section alt" id="meeting-room">
+    <div class="project-inner">
+      <!-- 左：纯大屏 + 左下方控制器（同属左列） -->
+      <div class="demo-col">
+        <div class="demo-viewport bare" data-base="1984" style="aspect-ratio:1984/1144;">
+          <iframe id="mrFrame" src="demos/meeting-room/index.html"
+                  style="width:1984px;height:1144px;background:transparent;"
+                  title="会议室大屏 Demo" loading="lazy"></iframe>
+          <button class="demo-fs-btn" title="全屏体验" aria-label="全屏">
+            <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M8 3H5a2 2 0 0 0-2 2v3m18 0V5a2 2 0 0 0-2-2h-3M8 21H5a2 2 0 0 1-2-2v-3m18 0v3a2 2 0 0 1-2 2h-3"/></svg>
+          </button>
+        </div>
+        <!-- 控制器：大屏左下方一行，只注入异常 -->
+        <div class="mr-controller" id="mrController" data-target="mrFrame">
+          <div class="mrc-counters">
+            <div class="mrc-row" data-key="blockAbnormal">
+              <span class="mrc-dot c-red"></span><span class="mrc-label">阻断</span>
+              <div class="mrc-step"><button class="mrc-minus">−</button><span class="mrc-val">0</span><button class="mrc-plus">+</button></div>
+            </div>
+            <div class="mrc-row" data-key="warnAbnormal">
+              <span class="mrc-dot c-orange"></span><span class="mrc-label">非阻断</span>
+              <div class="mrc-step"><button class="mrc-minus">−</button><span class="mrc-val">0</span><button class="mrc-plus">+</button></div>
+            </div>
+            <div class="mrc-row" data-key="expired">
+              <span class="mrc-dot c-amber"></span><span class="mrc-label">过保</span>
+              <div class="mrc-step"><button class="mrc-minus">−</button><span class="mrc-val">0</span><button class="mrc-plus">+</button></div>
+            </div>
+            <div class="mrc-row" data-key="nonstandard">
+              <span class="mrc-dot c-amber"></span><span class="mrc-label">非标</span>
+              <div class="mrc-step"><button class="mrc-minus">−</button><span class="mrc-val">0</span><button class="mrc-plus">+</button></div>
+            </div>
+          </div>
+          <button class="mrc-reset">恢复默认</button>
+        </div>
+      </div>
+
+      <!-- 右：文字介绍 -->
+      <div class="text-col">
+        <div class="proj-top">
+          <span class="eyebrow">PROJECT 06 · 稳定性</span>
+          <span class="proj-status s-live">已上线</span>
+        </div>
+        <h2 class="proj-title">会议大屏稳定性治理</h2>
+        <p class="proj-lead">
+          把"这间会议室到底能不能用"，变成可量化、可治理、可预警的运营指标。
+        </p>
+        <p class="proj-body">
+          建立统一的异常分级体系与一屏统览的治理看板。用左下角控制器实时注入各类异常，
+          大屏即时联动——让运维从"被动救火"转向"主动治理"。
+        </p>
+        <div class="proj-tags">
+          <span>稳定性治理</span><span>异常分级</span><span>治理看板</span><span>交互原型</span>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <script>
+    /* ===== VariableProximity（原生 JS 移植版） =====
+       以鼠标为圆心画一个半径为 RADIUS 的“感应圈”：
+       圈内的字母按离鼠标的远近，从 from 设置插值到 to 设置（越近越粗越大），
+       圈外的字母保持 from 原样。 */
+    (function () {
+      const TEXT = 'CHENYU';
+      const title = document.getElementById('pressureTitle');
+      if (!title) return;
+
+      const FROM_W = 400, TO_W = 1000;   // 字重 wght
+      const FROM_O = 9,   TO_O = 40;     // 视觉尺寸 opsz
+      const FROM = `'wght' ${FROM_W}, 'opsz' ${FROM_O}`;
+      const RADIUS = 220;                 // 感应半径（标题很大，半径也放大）
+
+      // 生成字母 span（空格也占位，但不参与动效）
+      const letters = [];
+      TEXT.split('').forEach(ch => {
+        const s = document.createElement('span');
+        if (ch === ' ') { s.innerHTML = '&nbsp;'; }
+        else { s.textContent = ch; letters.push(s); }
+        s.style.fontVariationSettings = FROM;
+        title.appendChild(s);
+      });
+
+      // 鼠标位置（换算成相对标题容器的坐标）
+      const rel = { x: -9999, y: -9999 };
+      const update = (x, y) => {
+        const r = title.getBoundingClientRect();
+        rel.x = x - r.left; rel.y = y - r.top;
+      };
+      window.addEventListener('mousemove', e => update(e.clientX, e.clientY));
+      window.addEventListener('touchmove', e => {
+        const t = e.touches[0]; update(t.clientX, t.clientY);
+      }, { passive: true });
+
+      function frame() {
+        const cr = title.getBoundingClientRect();
+        letters.forEach(s => {
+          const r = s.getBoundingClientRect();
+          const cx = r.left + r.width / 2 - cr.left;
+          const cy = r.top + r.height / 2 - cr.top;
+          const d = Math.hypot(rel.x - cx, rel.y - cy);
+          if (d >= RADIUS) { s.style.fontVariationSettings = FROM; return; }
+          const f = Math.min(Math.max(1 - d / RADIUS, 0), 1); // linear falloff
+          const w = FROM_W + (TO_W - FROM_W) * f;
+          const o = FROM_O + (TO_O - FROM_O) * f;
+          s.style.fontVariationSettings = `'wght' ${w}, 'opsz' ${o}`;
+        });
+        requestAnimationFrame(frame);
+      }
+      frame();
+    })();
+
+    /* ===== 底部卡片：按屏幕宽度铺满后整体复制一份，做到真正无缝无限循环 ===== */
+    (function () {
+      const track = document.getElementById('cardsTrack');
+      if (!track) return;
+
+      // 每张卡 = 一个真实项目，点击平滑滚动到对应区块；缩略图用各 demo 的实拍效果图
+      const projects = [
+        { c: 'c1', name: '会议室 3.0<br>体感·智感·情感', img: 'assets/card-emotion.png',      go: 'meeting-emotion' },
+        { c: 'c5', name: '会议 AI 纪要能力升级',         img: 'assets/card-ai-listening.png', go: 'ai-listening' },
+        { c: 'c6', name: '大屏 AI 翻译',               img: 'assets/card-translation.png',  go: 'ai-translation' },
+        { c: 'c2', name: 'eShare · AI 无线投影',        img: 'assets/card-eshare.png',       go: 'eshare', portrait: true },
+        { c: 'cl', name: '会议智能画面视图',           img: 'assets/card-layout.png',       go: 'layout' },
+        { c: 'cg', name: '会议大屏稳定性治理',         img: 'assets/card-stability.png',    go: 'meeting-room' }
+      ];
+
+      const cardHTML = p => {
+        // 有 img 的卡片用 demo 截图当缩略图，否则用渐变占位
+        const bg = p.img
+          ? ` style="background-image:url('${p.img}');background-size:cover;background-position:top center;"`
+          : '';
+        const go = p.go ? ` data-go="${p.go}"` : '';
+        const pc = p.portrait ? ' card-portrait' : '';
+        return `<div class="card ${p.c}${pc}"${go}><div class="thumb"${bg}><span class="name">${p.name}</span></div></div>`;
+      };
+      const oneSet = projects.map(cardHTML).join('');
+
+      // 点卡片 → 平滑滚到对应项目区块（rAF 手写缓动，保证「滚过去」而非「跳过去」）
+      const easeInOutCubic = p => p < 0.5 ? 4 * p * p * p : 1 - Math.pow(-2 * p + 2, 3) / 2;
+      function smoothScrollTo(targetY, dur) {
+        const startY = window.scrollY, dist = targetY - startY, t0 = Date.now();
+        const tick = () => {
+          const p = Math.min(1, (Date.now() - t0) / dur);
+          window.scrollTo(0, startY + dist * easeInOutCubic(p));
+          if (p < 1) setTimeout(tick, 16);
+        };
+        tick();
+      }
+      track.addEventListener('click', e => {
+        const card = e.target.closest('.card[data-go]');
+        if (!card) return;
+        const sec = document.getElementById(card.getAttribute('data-go'));
+        if (!sec) return;
+        const targetY = window.scrollY + sec.getBoundingClientRect().top;
+        smoothScrollTo(targetY, 750);
+      });
+
+      function build() {
+        // 先放一组，量出一组宽度
+        track.innerHTML = oneSet;
+        const setWidth = track.scrollWidth || 1;
+        // 铺到「至少占满一屏」再多放一组，保证半幅 ≥ 视口宽
+        const sets = Math.ceil(window.innerWidth / setWidth) + 1;
+        let half = '';
+        for (let i = 0; i < sets; i++) half += oneSet;
+        // 复制成两个完全相同的半幅，配合 translateX(-50%) 无缝衔接
+        track.innerHTML = half + half;
+        // 速度恒定（约 60px/秒），与总宽无关
+        const halfWidth = track.scrollWidth / 2;
+        track.style.animationDuration = (halfWidth / 60) + 's';
+      }
+
+      build();
+      // 窗口大小变化时重新铺，避免变宽后露出空白
+      let t;
+      window.addEventListener('resize', () => { clearTimeout(t); t = setTimeout(build, 200); });
+    })();
+
+    /* ===== demo iframe 缩放：内部按桌面宽渲染，再整体缩放贴合列宽（支持多个 demo） ===== */
+    (function () {
+      const vps = document.querySelectorAll('.demo-viewport');
+      if (!vps.length) return;
+      function fitAll() {
+        vps.forEach(vp => {
+          if (vp.classList.contains('expanded')) return; // 全屏时交给 CSS/demo 自适应
+          const iframe = vp.querySelector('iframe');
+          if (!iframe) return;
+          const iw = parseFloat(iframe.style.width) || parseFloat(vp.getAttribute('data-base')) || 1280;
+          const ih = parseFloat(iframe.style.height) || iw * 0.625;
+          // 取较小比例「等比内嵌」：正常态(宽高比匹配)铺满，全屏态自动居中留黑边
+          const scale = Math.min(vp.clientWidth / iw, vp.clientHeight / ih);
+          iframe.style.left = ((vp.clientWidth - iw * scale) / 2) + 'px';
+          iframe.style.top = ((vp.clientHeight - ih * scale) / 2) + 'px';
+          iframe.style.transform = `scale(${scale})`;
+        });
+      }
+      fitAll();
+      window.addEventListener('resize', fitAll);
+      if (window.ResizeObserver) {
+        const ro = new ResizeObserver(fitAll);
+        vps.forEach(v => ro.observe(v));
+      }
+
+      /* 放大体验：浏览器内全屏（覆盖浏览器视口，而非整机全屏）；再点或按 Esc 退出 */
+      function toggleExpand(vp, on) {
+        const willExpand = on !== undefined ? on : !vp.classList.contains('expanded');
+        vp.classList.toggle('expanded', willExpand);
+        document.body.style.overflow = willExpand ? 'hidden' : '';
+        fitAll();
+        setTimeout(fitAll, 60);
+      }
+      document.querySelectorAll('.demo-fs-btn').forEach(btn => {
+        btn.addEventListener('click', () => {
+          const vp = btn.closest('.demo-viewport');
+          if (vp) toggleExpand(vp);
+        });
+      });
+      document.addEventListener('keydown', e => {
+        if (e.key === 'Escape') {
+          const ex = document.querySelector('.demo-viewport.expanded');
+          if (ex) toggleExpand(ex, false);
+        }
+      });
+    })();
+
+    /* ===== BorderGlow（原 React 组件逻辑移植）：跟随光标的边缘辉光 ===== */
+    (function () {
+      document.querySelectorAll('.border-glow-card').forEach(card => {
+        function onMove(e) {
+          const rect = card.getBoundingClientRect();
+          const x = e.clientX - rect.left;
+          const y = e.clientY - rect.top;
+          const cx = rect.width / 2, cy = rect.height / 2;
+          const dx = x - cx, dy = y - cy;
+          // 边缘贴近度 0~1（越靠边越接近 1）
+          let kx = Infinity, ky = Infinity;
+          if (dx !== 0) kx = cx / Math.abs(dx);
+          if (dy !== 0) ky = cy / Math.abs(dy);
+          const edge = Math.min(Math.max(1 / Math.min(kx, ky), 0), 1);
+          // 光标相对中心的角度
+          let deg = 0;
+          if (dx !== 0 || dy !== 0) {
+            deg = Math.atan2(dy, dx) * (180 / Math.PI) + 90;
+            if (deg < 0) deg += 360;
+          }
+          card.style.setProperty('--edge-proximity', (edge * 100).toFixed(2));
+          card.style.setProperty('--cursor-angle', deg.toFixed(2) + 'deg');
+        }
+        card.addEventListener('pointermove', onMove);
+      });
+    })();
+
+    /* ===== DotGrid（原 React 组件移植版，原生 canvas）：跟随鼠标的互动点阵背景 ===== */
+    (function () {
+      document.querySelectorAll('canvas.dotgrid-bg').forEach(canvas => {
+        const wrap = canvas.parentElement;
+        const ctx = canvas.getContext('2d');
+        const DOT = 4, GAP = 22, PROX = 150, SHOCK_R = 230;
+        const BASE = [38, 60, 80], ACTIVE = [37, 216, 255];
+        let dots = [], W = 0, H = 0;
+        // 指针状态（相对 canvas 坐标）
+        const ptr = { x: -9999, y: -9999, last: 0, active: false };
+        function build() {
+          const r = wrap.getBoundingClientRect();
+          W = r.width; H = r.height;
+          const dpr = window.devicePixelRatio || 1;
+          canvas.width = W * dpr; canvas.height = H * dpr;
+          canvas.style.width = W + 'px'; canvas.style.height = H + 'px';
+          ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+          const cell = DOT + GAP;
+          const cols = Math.floor((W + GAP) / cell), rows = Math.floor((H + GAP) / cell);
+          const gw = cell * cols - GAP, gh = cell * rows - GAP;
+          const sx = (W - gw) / 2 + DOT / 2, sy = (H - gh) / 2 + DOT / 2;
+          dots = [];
+          for (let y = 0; y < rows; y++)
+            for (let x = 0; x < cols; x++)
+              dots.push({ cx: sx + x * cell, cy: sy + y * cell, ox: 0, oy: 0, vx: 0, vy: 0 });
+        }
+        function draw() {
+          const t = performance.now() / 1000;
+          // 焦点：有鼠标时跟随鼠标，无鼠标时自动游走
+          let fx, fy;
+          if (ptr.active) { fx = ptr.x; fy = ptr.y; }
+          else { fx = W * (0.5 + 0.42 * Math.sin(t * 0.5)); fy = H * (0.5 + 0.42 * Math.sin(t * 0.37 + 1)); }
+          ctx.clearRect(0, 0, W, H);
+          const proxSq = PROX * PROX;
+          for (const d of dots) {
+            // 弹性回位（被推开后弹回原位）
+            d.vx += (-d.ox) * 0.12; d.vy += (-d.oy) * 0.12;
+            d.vx *= 0.82; d.vy *= 0.82;
+            d.ox += d.vx; d.oy += d.vy;
+            const dx = d.cx - fx, dy = d.cy - fy, dsq = dx * dx + dy * dy;
+            let col = BASE;
+            if (dsq <= proxSq) {
+              const k = 1 - Math.sqrt(dsq) / PROX;
+              col = [
+                Math.round(BASE[0] + (ACTIVE[0] - BASE[0]) * k),
+                Math.round(BASE[1] + (ACTIVE[1] - BASE[1]) * k),
+                Math.round(BASE[2] + (ACTIVE[2] - BASE[2]) * k)
+              ];
+            }
+            ctx.beginPath();
+            ctx.fillStyle = 'rgb(' + col[0] + ',' + col[1] + ',' + col[2] + ')';
+            ctx.arc(d.cx + d.ox, d.cy + d.oy, DOT / 2, 0, Math.PI * 2);
+            ctx.fill();
+          }
+          requestAnimationFrame(draw);
+        }
+        const toLocal = e => {
+          const r = canvas.getBoundingClientRect();
+          return { x: e.clientX - r.left, y: e.clientY - r.top };
+        };
+        function onMove(e) {
+          const p = toLocal(e);
+          const now = performance.now();
+          const dt = ptr.last ? Math.max(now - ptr.last, 1) : 16;
+          const vx = (p.x - ptr.x) / dt * 16, vy = (p.y - ptr.y) / dt * 16;
+          const speed = Math.hypot(vx, vy);
+          ptr.x = p.x; ptr.y = p.y; ptr.last = now; ptr.active = true;
+          // 鼠标快速划过时把附近的点推开
+          if (speed > 1.5 && p.x >= 0 && p.y >= 0 && p.x <= W && p.y <= H) {
+            for (const d of dots) {
+              const ddx = d.cx - p.x, ddy = d.cy - p.y, dist = Math.hypot(ddx, ddy);
+              if (dist < PROX) {
+                const f = 1 - dist / PROX;
+                d.vx += (ddx / (dist || 1)) * f * Math.min(speed, 45) * 0.22;
+                d.vy += (ddy / (dist || 1)) * f * Math.min(speed, 45) * 0.22;
+              }
+            }
+          }
+        }
+        function onClick(e) {
+          const p = toLocal(e);
+          if (p.x < 0 || p.y < 0 || p.x > W || p.y > H) return;
+          for (const d of dots) {
+            const ddx = d.cx - p.x, ddy = d.cy - p.y, dist = Math.hypot(ddx, ddy);
+            if (dist < SHOCK_R) {
+              const f = Math.max(0, 1 - dist / SHOCK_R);
+              d.vx += (ddx / (dist || 1)) * f * 18;
+              d.vy += (ddy / (dist || 1)) * f * 18;
+            }
+          }
+        }
+        build();
+        let rt;
+        window.addEventListener('resize', () => { clearTimeout(rt); rt = setTimeout(build, 150); });
+        if (window.ResizeObserver) new ResizeObserver(() => build()).observe(wrap);
+        window.addEventListener('mousemove', onMove, { passive: true });
+        window.addEventListener('click', onClick);
+        draw();
+      });
+    })();
+
+    /* ===== 外部控制器（通用）：每个 .mr-controller[data-target] 驱动自己的大屏 demo ===== */
+    (function () {
+      document.querySelectorAll('.mr-controller[data-target]').forEach(ctl => {
+        const frame = document.getElementById(ctl.getAttribute('data-target'));
+        if (!frame) return;
+        let state = {
+          viewMode: 'touch',
+          counts: { blockAbnormal: 0, warnAbnormal: 0, expired: 0, nonstandard: 0 },
+          max: { blockAbnormal: 3, warnAbnormal: 3, expired: 3, nonstandard: 2 }
+        };
+        const send = msg => {
+          try { frame.contentWindow.postMessage(Object.assign({ target: 'mr-demo' }, msg), '*'); } catch (e) {}
+        };
+        function render() {
+          ctl.querySelectorAll('.mrc-modes button').forEach(b =>
+            b.classList.toggle('active', b.dataset.view === state.viewMode));
+          ctl.querySelectorAll('.mrc-row').forEach(row => {
+            const k = row.dataset.key, v = (state.counts && state.counts[k]) || 0;
+            const mx = (state.max && state.max[k]) || 9;
+            row.querySelector('.mrc-val').textContent = v;
+            row.classList.toggle('on', v > 0);
+            row.querySelector('.mrc-minus').disabled = v <= 0;
+            row.querySelector('.mrc-plus').disabled = v >= mx;
+          });
+        }
+        // 只接收「自己那个 iframe」广播的状态，避免多个 demo 互相串台
+        window.addEventListener('message', e => {
+          if (e.source !== frame.contentWindow) return;
+          const d = e.data || {};
+          if (d.source === 'mr-demo' && d.type === 'state') { state = d; render(); }
+        });
+        ctl.querySelectorAll('.mrc-modes button').forEach(b =>
+          b.addEventListener('click', () => send({ type: 'setView', value: b.dataset.view })));
+        ctl.querySelectorAll('.mrc-row').forEach(row => {
+          const k = row.dataset.key;
+          const step = delta => {
+            const cur = (state.counts && state.counts[k]) || 0;
+            const mx = (state.max && state.max[k]) || 9;
+            const nv = Math.max(0, Math.min(mx, cur + delta));
+            if (nv === cur) return;
+            if (!state.counts) state.counts = {};
+            state.counts[k] = nv;   // 乐观更新，连点不丢；demo 回传后再校准
+            render();
+            send({ type: 'setCount', key: k, value: nv });
+          };
+          row.querySelector('.mrc-minus').addEventListener('click', () => step(-1));
+          row.querySelector('.mrc-plus').addEventListener('click', () => step(1));
+        });
+        const resetBtn = ctl.querySelector('.mrc-reset');
+        if (resetBtn) resetBtn.addEventListener('click', () => send({ type: 'reset' }));
+        // 初次同步（iframe 加载完后请求一次当前状态，再补几次兜底）
+        frame.addEventListener('load', () => send({ type: 'sync' }));
+        setTimeout(() => send({ type: 'sync' }), 800);
+        setTimeout(() => send({ type: 'sync' }), 2200);
+        render();
+      });
+    })();
+
+    /* ===== 智能画面布局：参会人数 / 发言人 / 区域 → postMessage 驱动 A1·A2 重排 ===== */
+    (function () {
+      document.querySelectorAll('.layout-ctl').forEach(ctl => {
+        const frame = document.getElementById(ctl.getAttribute('data-frame'));
+        if (!frame) return;
+        const send = patch => {
+          try { frame.contentWindow.postMessage({ target: 'layout-demo', type: 'setState', patch: patch }, '*'); } catch (e) {}
+        };
+        const slider = ctl.querySelector('.lc-slider');
+        const countEl = ctl.querySelector('.lc-count');
+        // 参会人数
+        slider.addEventListener('input', () => {
+          countEl.textContent = slider.value;
+          send({ count: +slider.value });
+        });
+        // 发言人 1/2（单选）
+        ctl.querySelectorAll('button[data-top]').forEach(btn => {
+          btn.addEventListener('click', () => {
+            ctl.querySelectorAll('button[data-top]').forEach(b => b.classList.toggle('active', b === btn));
+            send({ topRowCount: +btn.dataset.top });
+          });
+        });
+        // 区域显示 Dock/字幕/底色（各自开关）
+        ctl.querySelectorAll('button[data-toggle]').forEach(btn => {
+          btn.addEventListener('click', () => {
+            const on = btn.classList.toggle('active');
+            send({ [btn.dataset.toggle]: on });
+          });
+        });
+        // 控制器默认态（8人/发言1人/开关全关）与 demo 默认态一致，无需载入时推送，避免竞态
+      });
+    })();
+
+    /* ===== AI 翻译：一键预览不同翻译场景（恢复默认 / 回到首页 / 会中 / 共享） ===== */
+    (function () {
+      document.querySelectorAll('.trans-ctl').forEach(ctl => {
+        const frame = document.getElementById(ctl.getAttribute('data-frame'));
+        if (!frame) return;
+        const SRC = 'demos/meeting-room/index.html?view=translation';
+        const send = value => {
+          try { frame.contentWindow.postMessage({ target: 'mr-preset', value: value }, '*'); } catch (e) {}
+        };
+        ctl.querySelectorAll('button[data-preset]').forEach(btn => {
+          btn.addEventListener('click', () => {
+            ctl.querySelectorAll('button[data-preset]').forEach(b => b.classList.toggle('active', b === btn));
+            const p = btn.dataset.preset;
+            if (p === 'reset') { frame.src = SRC; }   // 整屏复位到默认翻译态，最干净
+            else { send(p); }
+          });
+        });
+      });
+    })();
+
+    /* ===== 会议 AI 听：图文纪要 / AI 问答 一键演示 ===== */
+    (function () {
+      document.querySelectorAll('.al-ctl').forEach(ctl => {
+        const frame = document.getElementById(ctl.getAttribute('data-frame'));
+        if (!frame) return;
+        const doc = () => { try { return frame.contentDocument; } catch (e) { return null; } };
+        // 图文纪要：点「立即体验」→ 页面滚动到图文纪要处
+        const graphic = () => {
+          const d = doc(); if (!d) return;
+          const btn = [...d.querySelectorAll('button')].find(b => (b.textContent || '').trim() === '立即体验');
+          if (btn) { btn.click(); return; }   // demo 内部已处理滚动（只滚 iframe 自身，不滚父页）
+          // 兜底：直接在 iframe 内部滚动到图文纪要，绝不触发父页（个人简历）滚动
+          const target = d.getElementById('visual-summary-content');
+          if (!target) return;
+          const win = d.defaultView;
+          let sc = target.parentElement;
+          while (sc && sc !== d.body) {
+            const oy = win.getComputedStyle(sc).overflowY;
+            if ((oy === 'auto' || oy === 'scroll') && sc.scrollHeight > sc.clientHeight) break;
+            sc = sc.parentElement;
+          }
+          if (sc && sc !== d.body) sc.scrollTo({ top: target.getBoundingClientRect().top - sc.getBoundingClientRect().top + sc.scrollTop, behavior: 'smooth' });
+        };
+        // AI 问答：露出小微胶囊 → hover → 点击 → 展开小微问答
+        const qa = () => {
+          const d = doc(); if (!d) return;
+          const body = d.body;
+          // 若「图文纪要」新功能引导弹窗正显示，先关掉它，再走胶囊交互
+          const tip = [...d.querySelectorAll('button')].find(b => (b.textContent || '').trim() === '立即体验');
+          if (tip) tip.click();
+          const delay = tip ? 420 : 0;
+          setTimeout(() => {
+            body.classList.add('al-pill-on');
+            setTimeout(() => body.classList.add('al-pill-hover'), 450);
+            setTimeout(() => { const pill = d.querySelector('.__mwpill button'); if (pill) pill.click(); }, 1000);
+            setTimeout(() => { body.classList.remove('al-pill-hover'); body.classList.remove('al-pill-on'); }, 1600);
+          }, delay);
+        };
+        ctl.querySelectorAll('button[data-al]').forEach(btn => {
+          btn.addEventListener('click', () => {
+            ctl.querySelectorAll('button[data-al]').forEach(b => b.classList.toggle('active', b === btn));
+            (btn.dataset.al === 'qa' ? qa : graphic)();
+          });
+        });
+      });
+    })();
+
+    /* ===== eShare 控制器：切换识别到的投影码数量 0/1/2/3 ===== */
+    (function () {
+      const ctl = document.querySelector('.eshare-ctl');
+      const frame = document.getElementById('eshareFrame');
+      if (!ctl || !frame) return;
+      const send = m => {
+        try { frame.contentWindow.postMessage({ target: 'eshare', type: 'setMode', value: m }, '*'); } catch (e) {}
+      };
+      ctl.querySelectorAll('.mrc-modes button').forEach(b => {
+        b.addEventListener('click', () => {
+          ctl.querySelectorAll('.mrc-modes button').forEach(x => x.classList.remove('active'));
+          b.classList.add('active');
+          send(parseInt(b.dataset.count));
+        });
+      });
+      frame.addEventListener('load', () => send(0));
+    })();
+
+    /* ===== 会议稳定性治理：隐藏大屏左下角 AI 入口（仅 mrFrame，不影响检测异常面板/AI翻译） ===== */
+    (function () {
+      const frame = document.getElementById('mrFrame');
+      if (!frame) return;
+      const inject = () => {
+        try {
+          const d = frame.contentDocument;
+          if (!d || !d.head || d.getElementById('__hideAI')) return;
+          const st = d.createElement('style');
+          st.id = '__hideAI';
+          st.textContent = '[class~="bottom-[100px]"][class~="w-20"],[class~="bottom-[194px]"][class~="w-80"]{display:none!important}';
+          d.head.appendChild(st);
+        } catch (e) {}
+      };
+      frame.addEventListener('load', inject);
+      inject();
+    })();
+
+    /* ===== 详情大弹窗（通用，支持多个弹窗 + 多页切换） ===== */
+    (function () {
+      document.querySelectorAll('.detail-overlay').forEach(overlay => {
+        const pages = [...overlay.querySelectorAll('.detail-page')];
+        const tabs = [...overlay.querySelectorAll('.dt')];
+        const dots = [...overlay.querySelectorAll('.dd')];
+        const prev = overlay.querySelector('.dprev');
+        const next = overlay.querySelector('.dnext');
+        const body = overlay.querySelector('.detail-body');
+        let idx = 0;
+        function show(i) {
+          idx = Math.max(0, Math.min(pages.length - 1, i));
+          pages.forEach((p, k) => p.classList.toggle('active', k === idx));
+          tabs.forEach((t, k) => t.classList.toggle('active', k === idx));
+          dots.forEach((d, k) => d.classList.toggle('active', k === idx));
+          if (prev) prev.disabled = idx === 0;
+          if (next) next.disabled = idx === pages.length - 1;
+          if (body) body.scrollTop = 0;
+        }
+        const hide = () => { overlay.classList.remove('on'); document.body.style.overflow = ''; };
+        overlay._show = show; overlay._hide = hide;
+        overlay.querySelector('.detail-close').addEventListener('click', hide);
+        overlay.addEventListener('click', e => { if (e.target === overlay) hide(); });
+        tabs.forEach((t, k) => t.addEventListener('click', () => show(k)));
+        if (prev) prev.addEventListener('click', () => show(idx - 1));
+        if (next) next.addEventListener('click', () => show(idx + 1));
+        document.addEventListener('keydown', e => {
+          if (!overlay.classList.contains('on')) return;
+          if (e.key === 'Escape') hide();
+          else if (e.key === 'ArrowLeft') show(idx - 1);
+          else if (e.key === 'ArrowRight') show(idx + 1);
+        });
+      });
+      document.querySelectorAll('[data-detail]').forEach(btn => {
+        btn.addEventListener('click', () => {
+          const ov = document.getElementById(btn.getAttribute('data-detail'));
+          if (ov) { ov.classList.add('on'); document.body.style.overflow = 'hidden'; ov._show(0); }
+        });
+      });
+    })();
+  </script>
+</body>
+</html>

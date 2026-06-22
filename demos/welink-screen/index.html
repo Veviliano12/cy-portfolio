@@ -1,0 +1,277 @@
+<!DOCTYPE html>
+<html lang="zh">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Meeting 大屏动效</title>
+<style>
+  *{ margin:0; padding:0; box-sizing:border-box; }
+  html,body{ width:100%; height:100%; overflow:hidden; background:transparent;
+    font-family:-apple-system,"PingFang SC","Microsoft YaHei",system-ui,sans-serif; }
+
+  #viewport{ position:fixed; inset:0; }
+  #wrap{ position:absolute; top:0; left:0; transform-origin:0 0; display:flex; align-items:center; gap:110px;
+    transition:transform 1s cubic-bezier(.66,0,.2,1); will-change:transform; }
+
+  .device{ position:relative; width:1920px; height:1080px; flex:0 0 auto;
+    background:#000; border:32px solid #000; border-radius:48px;
+    box-shadow:0 0 50px rgba(0,0,0,.3), 0 40px 120px rgba(20,40,90,.18);
+    outline:1px solid rgba(255,255,255,.1); overflow:hidden; }
+  .screen{ position:absolute; inset:0; border-radius:16px; overflow:hidden; }
+
+  .bglayer{ position:absolute; inset:0; transition:opacity .95s ease; }
+  .bglayer img{ position:absolute; inset:0; width:100%; height:100%; object-fit:cover; filter:brightness(.92); }
+  .starfield{ position:absolute; inset:0;
+    background:radial-gradient(120% 80% at 50% 115%, rgba(40,70,120,.5), transparent 55%),
+               linear-gradient(180deg,#0a1730,#0a1832 40%,#0c1c3a 70%,#081428); }
+  .star{ position:absolute; background:#cfe0ff; border-radius:50%; animation:tw 3.6s infinite ease-in-out; }
+  @keyframes tw{ 0%,100%{opacity:.25;} 50%{opacity:1;} }
+  .tint{ position:absolute; inset:0; background:rgba(30,58,138,.06); mix-blend-mode:overlay; pointer-events:none; }
+
+  .brand{ position:absolute; top:42px; left:48px; z-index:30; }
+  .brand img{ height:46px; display:block; filter:drop-shadow(0 2px 6px rgba(0,0,0,.18)); }
+
+  /* 中部 */
+  .home{ position:absolute; inset:0; display:flex; align-items:center; justify-content:center; z-index:10; }
+  .home-inner{ display:flex; gap:24px; align-items:center; }
+  .leftcol{ position:relative; width:384px; height:754px; }
+  .cards{ position:absolute; inset:0; display:flex; flex-direction:column; gap:24px; }
+
+  /* —— 星空：绿/蓝实色卡 —— */
+  .card-green{ height:365px; border-radius:32px; padding:38px 30px; text-align:center; color:#fff;
+    display:flex; flex-direction:column; align-items:center;
+    background:linear-gradient(160deg,#1fc196,#15a079); box-shadow:0 18px 46px rgba(8,80,60,.4); }
+  .card-green .lbl{ font-size:40px; font-weight:800; }
+  .card-green .hint{ font-size:18px; opacity:.9; margin-top:12px; }
+  .card-green .code{ font-size:64px; font-weight:800; letter-spacing:2px; margin:auto 0; white-space:nowrap; }
+  .card-blue{ height:365px; border-radius:32px; color:#fff;
+    display:flex; flex-direction:column; align-items:center; justify-content:center; gap:18px;
+    background:linear-gradient(160deg,#3a86ff,#2b6cf0); box-shadow:0 18px 46px rgba(20,55,150,.4); }
+  .card-blue .lbl{ font-size:40px; font-weight:800; }
+  .card-blue img{ width:172px; height:172px; object-fit:contain; }
+
+  /* —— 水景：更白更透的毛玻璃卡 —— */
+  .glassW{ position:relative; border-radius:32px; color:#16294a;
+    background:linear-gradient(155deg, rgba(255,255,255,.62), rgba(255,255,255,.48));
+    backdrop-filter:blur(28px) saturate(1.4); -webkit-backdrop-filter:blur(28px) saturate(1.4);
+    border:1px solid rgba(255,255,255,.7);
+    box-shadow:0 14px 38px rgba(31,55,120,.16), inset 0 1px 0 rgba(255,255,255,.85); }
+  .card-fp{ height:365px; padding:38px 30px; text-align:center; display:flex; flex-direction:column; align-items:center; }
+  .card-fp .lbl{ font-size:40px; font-weight:800; }
+  .card-fp .code{ font-size:60px; font-weight:800; letter-spacing:2px; color:#101f38; margin:auto 0; white-space:nowrap; }
+  .card-fp .hint{ font-size:15px; color:#46566f; }
+  .card-fb{ height:365px; display:flex; flex-direction:column; align-items:center; justify-content:center; gap:18px; }
+  .card-fb .lbl{ font-size:40px; font-weight:800; }
+  .card-fb img{ width:172px; height:172px; object-fit:contain; }
+
+  /* 全球窗（白色 slide） */
+  .hero{ position:relative; width:1340px; height:754px; border-radius:32px; overflow:hidden;
+    border:1px solid rgba(255,255,255,.2); box-shadow:0 25px 60px rgba(0,0,0,.35); background:#fff; }
+  .hero img{ position:absolute; inset:0; width:100%; height:100%; object-fit:cover; }
+
+  /* 底部栏 */
+  .bottombar{ position:absolute; bottom:24px; left:0; width:100%; padding:0 40px;
+    display:flex; align-items:flex-end; justify-content:space-between; z-index:30; }
+  .bgroup{ display:flex; gap:30px; align-items:center; margin-bottom:16px; }
+  .bitem{ display:flex; align-items:center; gap:9px; color:#fff; font-size:24px; font-weight:500; text-shadow:0 1px 6px rgba(0,0,30,.35); }
+  .bitem svg{ width:27px; height:27px; }
+  .center-tabs{ position:absolute; left:50%; transform:translateX(-50%); bottom:0; display:flex; gap:24px; }
+  .tab{ height:72px; width:200px; border-radius:999px; display:flex; align-items:center; justify-content:center; gap:12px;
+    color:#fff; font-size:25px; font-weight:600;
+    backdrop-filter:blur(40px); -webkit-backdrop-filter:blur(40px);
+    background:rgba(255,255,255,.20); border:1px solid rgba(255,255,255,.3); box-shadow:0 10px 30px rgba(0,0,0,.2); }
+  .tab svg{ width:28px; height:28px; }
+
+  /* 第二屏：宫格 */
+  .apps{ position:absolute; inset:0; display:flex; align-items:center; justify-content:center; z-index:10; }
+  .apps-inner{ display:flex; gap:24px; align-items:stretch; }
+  .gl{ position:relative; border-radius:32px; color:#16294a;
+    background:linear-gradient(155deg, rgba(255,255,255,.62), rgba(255,255,255,.48));
+    backdrop-filter:blur(28px) saturate(1.4); -webkit-backdrop-filter:blur(28px) saturate(1.4);
+    border:1px solid rgba(255,255,255,.7);
+    box-shadow:0 14px 38px rgba(31,55,120,.16), inset 0 1px 0 rgba(255,255,255,.85); }
+  .big-proj{ width:466px; border-radius:32px; padding:40px 34px; text-align:center;
+    display:flex; flex-direction:column; align-items:center; justify-content:center; }
+  .big-proj .lbl{ font-size:44px; font-weight:800; }
+  .big-proj .code{ font-size:66px; font-weight:800; letter-spacing:3px; color:#101f38; margin-top:30px; white-space:nowrap; }
+  .big-proj .hint{ font-size:16px; color:#46566f; margin-top:34px; }
+  .grid2{ display:grid; grid-template-columns:repeat(2,1fr); grid-template-rows:221px 221px; gap:24px; width:680px; }
+  .gcard{ padding:30px 34px; overflow:hidden; }
+  .gcard .lbl{ font-size:38px; font-weight:700; }
+  .gcard img{ position:absolute; right:24px; bottom:18px; width:112px; height:112px; object-fit:contain; }
+  .gcard img.bigico{ width:138px; height:138px; }
+
+  /* 浮出进场：从下到上 */
+  .rise{ opacity:0; transform:translateY(48px); }
+  .rise.in{ opacity:1; transform:translateY(0); transition:opacity .72s ease, transform .78s cubic-bezier(.2,.75,.2,1); }
+  .rb1.in{ transition-delay:.02s; } .rh.in{ transition-delay:.09s; } .rb2.in{ transition-delay:.16s; }
+  .d1.in{ transition-delay:.05s; } .d2.in{ transition-delay:.15s; }
+  .d3.in{ transition-delay:.25s; } .d4.in{ transition-delay:.35s; } .d5.in{ transition-delay:.45s; }
+
+  #device2{ opacity:0; pointer-events:none; transition:opacity .9s ease; }
+  #device2.on{ opacity:1; }
+</style>
+</head>
+<body>
+<svg width="0" height="0" style="position:absolute" aria-hidden="true"><defs>
+  <g id="ic-help"><path d="M5 7a2 2 0 0 1 2-2h18a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H12l-6 5v-5H7a2 2 0 0 1-2-2Z" fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round"/><circle cx="12.5" cy="13" r="1.4" fill="currentColor"/><circle cx="19.5" cy="13" r="1.4" fill="currentColor"/><path d="M12.5 17c1.6 1.6 5.4 1.6 7 0" stroke="currentColor" stroke-width="2" stroke-linecap="round" fill="none"/></g>
+  <g id="ic-star"><path d="m16 4 3.6 7.3 8 1.2-5.8 5.7 1.4 8L16 29.4 8.8 33.2l1.4-8L4.4 12.5l8-1.2z" transform="scale(.85) translate(2.8 1)" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linejoin="round"/></g>
+  <g id="ic-shield"><path d="M16 4l10 4v7c0 7-4.5 11.5-10 13-5.5-1.5-10-6-10-13V8z" fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round"/><path d="m11.5 15.5 3 3 6-6.5" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" fill="none"/></g>
+  <g id="ic-camera"><rect x="3" y="8" width="17" height="16" rx="3" fill="none" stroke="currentColor" stroke-width="2"/><path d="m20 13 8-4v14l-8-4z" fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round"/></g>
+  <g id="ic-globe"><circle cx="16" cy="16" r="12" fill="none" stroke="currentColor" stroke-width="2"/><path d="M4 16h24M16 4c4 4 4 20 0 24M16 4c-4 4-4 20 0 24" fill="none" stroke="currentColor" stroke-width="2"/></g>
+  <g id="ic-lang"><circle cx="16" cy="16" r="12" fill="none" stroke="currentColor" stroke-width="2"/><path d="M5 12h22M5 20h22M16 4c-3.5 4-3.5 20 0 24M16 4c3.5 4 3.5 20 0 24" fill="none" stroke="currentColor" stroke-width="1.7"/></g>
+  <g id="ic-info"><circle cx="16" cy="16" r="12" fill="none" stroke="currentColor" stroke-width="2"/><path d="M16 14v8" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"/><circle cx="16" cy="10" r="1.6" fill="currentColor"/></g>
+  <linearGradient id="ag1" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#cfe0ff"/><stop offset="1" stop-color="#7da8ff"/></linearGradient>
+  <linearGradient id="ag2" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#ffffff"/><stop offset="1" stop-color="#bcd4ff"/></linearGradient>
+  <g id="ic-agenda3d">
+    <rect x="20" y="14" width="62" height="80" rx="10" fill="url(#ag1)" transform="rotate(-7 51 54)"/>
+    <rect x="30" y="20" width="62" height="80" rx="10" fill="url(#ag2)" stroke="#fff" stroke-width="1.5"/>
+    <rect x="42" y="36" width="38" height="6" rx="3" fill="#5b86d8"/>
+    <rect x="42" y="50" width="38" height="6" rx="3" fill="#7ea0e0"/>
+    <rect x="42" y="64" width="26" height="6" rx="3" fill="#9bb6e8"/>
+  </g>
+</defs></svg>
+
+<div id="viewport">
+ <div id="wrap">
+
+  <!-- ===== 设备1：主屏 ===== -->
+  <div class="device" id="device1">
+    <div class="screen">
+      <div class="bglayer" id="bgStar"><div class="starfield"></div><div id="stars"></div></div>
+      <div class="bglayer" id="bgWater" style="opacity:0"><img src="assets/water-bg.jpg" alt=""></div>
+      <div class="tint"></div>
+
+      <div class="brand"><img src="assets/meeting-logo.svg" alt="Meeting"></div>
+
+      <div class="home">
+        <div class="home-inner">
+          <div class="leftcol">
+            <!-- 星空：绿/蓝实色卡 -->
+            <div class="cards" id="cardsStar">
+              <div class="card-green rise rb2">
+                <div class="lbl">投影</div>
+                <div class="hint">在 eShare 输入投影码</div>
+                <div class="code">123-456</div>
+              </div>
+              <div class="card-blue rise rb1">
+                <div class="lbl">白板</div>
+                <img src="assets/icon-d.svg" alt="">
+              </div>
+            </div>
+            <!-- 水景：更白更透毛玻璃卡 -->
+            <div class="cards" id="cardsWater" style="opacity:0">
+              <div class="glassW card-fp rise rb2">
+                <div class="lbl">投影</div>
+                <div class="code">123-456</div>
+                <div class="hint">访客投影请访问：eshare.cc</div>
+              </div>
+              <div class="glassW card-fb rise rb1">
+                <div class="lbl">白板</div>
+                <img src="assets/icon-d.svg" alt="">
+              </div>
+            </div>
+          </div>
+          <div class="hero rise rh"><img src="assets/globalwindow.jpg" alt="全球窗"></div>
+        </div>
+      </div>
+
+      <div class="bottombar">
+        <div class="bgroup">
+          <span class="bitem"><svg viewBox="0 0 32 32"><use href="#ic-help"/></svg>求助</span>
+          <span class="bitem"><svg viewBox="0 0 32 32"><use href="#ic-star"/></svg>评价</span>
+          <span class="bitem"><svg viewBox="0 0 32 32"><use href="#ic-shield"/></svg>检测</span>
+        </div>
+        <div class="center-tabs">
+          <div class="tab"><svg viewBox="0 0 32 32"><use href="#ic-camera"/></svg>会议</div>
+          <div class="tab"><svg viewBox="0 0 32 32"><use href="#ic-globe"/></svg>浏览器</div>
+        </div>
+        <div class="bgroup">
+          <span class="bitem"><svg viewBox="0 0 32 32"><use href="#ic-lang"/></svg>English</span>
+          <span class="bitem"><svg viewBox="0 0 32 32"><use href="#ic-info"/></svg>关于</span>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ===== 设备2：宫格 ===== -->
+  <div class="device" id="device2">
+    <div class="screen">
+      <div class="bglayer"><img src="assets/water-bg.jpg" alt=""></div>
+      <div class="tint"></div>
+      <div class="brand"><img src="assets/meeting-logo.svg" alt="Meeting"></div>
+      <div class="apps" id="apps">
+        <div class="apps-inner">
+          <div class="gl big-proj rise d1">
+            <div class="lbl">投影</div>
+            <div class="code">654-328</div>
+            <div class="hint">输入投影码以在此屏投影</div>
+          </div>
+          <div class="grid2">
+            <div class="gl gcard rise d2"><div class="lbl">议程</div><svg width="122" height="122" viewBox="0 0 112 112" style="position:absolute;right:28px;bottom:20px"><use href="#ic-agenda3d"/></svg></div>
+            <div class="gl gcard rise d3"><div class="lbl">签到</div><img src="assets/icon-b.svg" alt=""></div>
+            <div class="gl gcard rise d4"><div class="lbl">翻译</div><img src="assets/icon-a.svg" alt=""></div>
+            <div class="gl gcard rise d5"><div class="lbl">白板</div><img class="bigico" src="assets/icon-c.svg" alt=""></div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+ </div>
+</div>
+
+<script>
+  const sw=document.getElementById('stars');
+  for(let i=0;i<150;i++){ const s=document.createElement('div'); s.className='star';
+    const z=Math.random()*2+.6; s.style.width=s.style.height=z+'px';
+    s.style.left=Math.random()*100+'%'; s.style.top=Math.random()*82+'%';
+    s.style.opacity=Math.random()*.6+.3; s.style.animationDelay=(Math.random()*3.6)+'s'; sw.appendChild(s); }
+
+  const wrap=document.getElementById('wrap'), dev1=document.getElementById('device1'), dev2=document.getElementById('device2');
+  const cardsStar=document.getElementById('cardsStar'), cardsWater=document.getElementById('cardsWater');
+  const hero=dev1.querySelector('.hero');
+  const DEV=1984, GAP=110, H=1144, PAIR=DEV*2+GAP;
+  let pairMode=false;
+  function layout(){
+    const vw=innerWidth, vh=innerHeight, m=1;
+    const Wf=pairMode?PAIR:DEV;
+    const S=Math.min(vw*m/Wf, vh*m/H);
+    wrap.style.transform=`translate(${vw/2-(Wf/2)*S}px,${vh/2-(H/2)*S}px) scale(${S})`;
+  }
+  addEventListener('resize', layout);
+
+  const bgStar=document.getElementById('bgStar'), bgWater=document.getElementById('bgWater');
+  const appsRise=[...dev2.querySelectorAll('.apps .rise')];
+
+  // 主屏：激活某套卡片并“先隐藏，再从下往上浮出”（含全球窗）
+  function riseHome(active, other){
+    other.style.opacity=0;
+    other.querySelectorAll('.rise').forEach(e=>e.classList.remove('in'));
+    const els=[...active.querySelectorAll('.rise'), hero];
+    els.forEach(e=>e.classList.remove('in'));
+    active.style.opacity=1;
+    void dev1.offsetWidth;
+    setTimeout(()=>els.forEach(e=>e.classList.add('in')), 320);
+  }
+  function resetApps(){ appsRise.forEach(e=>e.classList.remove('in')); }
+
+  function stateA(){ pairMode=false; dev2.classList.remove('on'); resetApps();
+    bgStar.style.opacity=1; bgWater.style.opacity=0; riseHome(cardsStar, cardsWater); layout(); }
+  function stateB(){ pairMode=false; dev2.classList.remove('on'); resetApps();
+    bgStar.style.opacity=0; bgWater.style.opacity=1; riseHome(cardsWater, cardsStar); layout(); }
+  function stateC(){ pairMode=true; dev2.classList.add('on','show'); layout();
+    void dev2.offsetWidth;
+    setTimeout(()=>appsRise.forEach(e=>e.classList.add('in')), 440); }
+
+  function loop(){
+    dev2.classList.remove(`show`); resetApps(); stateA();
+    setTimeout(stateB, 3000);   // 单屏：水天一色
+    setTimeout(stateC, 6000);   // 由一块大屏变成两块（双屏）
+    setTimeout(loop, 10000);
+  }
+  window.stateA=stateA; window.stateB=stateB; window.stateC=stateC;
+  layout(); loop();
+</script>
+</body>
+</html>

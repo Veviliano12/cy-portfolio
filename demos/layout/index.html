@@ -1,0 +1,424 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>会议室大屏布局方案对比</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <style>
+        /* --- 核心容器与布局 --- */
+        /* background-color 修改为纯黑 #000000 */
+        .screen-container { width: 1920px; height: 1080px; background-color: #000000; position: relative; overflow: hidden; box-shadow: 0 0 0 32px #000, 0 30px 80px rgba(0,0,0,0.5); display: flex; flex-direction: column; -webkit-font-smoothing: antialiased; border-radius: 44px; flex-shrink: 0; transition: opacity 0.4s ease, transform 0.4s ease; }
+        .scheme-column { display: flex; flex-direction: column; align-items: center; gap: 20px; flex-shrink: 0; transition: opacity 0.4s ease, transform 0.4s ease; }
+        .scheme-column.hidden-panel { display: none; }
+        .layout-area { width: 100%; height: 100%; position: relative; transition: all 0.4s cubic-bezier(0.25, 0.8, 0.25, 1); }
+
+        /* --- 标签说明 --- */
+        .screen-label { position: relative; background: white; color: #1f2937; padding: 12px 30px; border-radius: 12px; text-align: center; box-shadow: 0 10px 25px rgba(0,0,0,0.08); border-top: 6px solid #4b5563; min-width: 320px; }
+        .screen-label.scheme-a2 { border-top-color: #111827; }
+        .label-title { font-size: 32px; font-weight: 800; line-height: 1.2; color: #111827; }
+        .label-desc { font-size: 20px; font-weight: 500; opacity: 0.7; margin-top: 4px; color: #4b5563; }
+
+        /* --- 视频卡片通用样式 --- */
+        .video-card { position: absolute; background-color: #2d2d2d; border: 2px solid #3d3d3d; border-radius: 8px; display: flex; flex-direction: column; align-items: center; justify-content: center; overflow: hidden; box-sizing: border-box; transition: all 0.6s cubic-bezier(0.4, 0, 0.2, 1); opacity: 0; transform: scale(0.8); will-change: transform, width, height, top, left; z-index: 2; }
+        .video-card.visible { opacity: 1; transform: scale(1); }
+        .video-card.talking { border-color: #4ade80; box-shadow: 0 0 0 2px rgba(74, 222, 128, 0.3); z-index: 10; }
+
+        /* --- 更多人数卡片 (与普通卡片保持一致的底色) --- */
+        .video-card.more-card { z-index: 5; box-shadow: none !important; flex-direction: row !important; gap: 24px; color: #f3f4f6; }
+        .more-icon { font-size: 42px; margin-bottom: 0; filter: drop-shadow(0 2px 4px rgba(0,0,0,0.3)); }
+        .more-text { font-size: 32px; font-weight: 600; letter-spacing: 1px; text-shadow: 0 2px 4px rgba(0,0,0,0.5); }
+
+        /* --- 卡片内部元素 --- */
+        .avatar { width: 80px; height: 80px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 32px; color: white; font-weight: bold; margin: 0; }
+        .user-name { margin-top: 16px; font-size: 20px; font-weight: 500; color: #f3f4f6; text-shadow: 0 2px 4px rgba(0,0,0,0.8); letter-spacing: 0.5px; }
+        .mic-status { position: absolute; bottom: 12px; left: 12px; width: 36px; height: 36px; background: rgba(0, 0, 0, 0.5); border-radius: 50%; display: flex; align-items: center; justify-content: center; color: white; font-size: 16px; backdrop-filter: blur(4px); }
+        .mic-status i.fa-microphone-slash { color: #ef4444; }
+
+        /* --- 区分底色 (新增区域高亮) --- */
+        .region-bg {
+            position: absolute;
+            left: 4px;
+            right: 4px;
+            bottom: 4px;
+            /* 提亮为更明显的灰底板 */
+            background: #222222;
+            border: 1px solid #333333;
+            border-top: 2px solid #4a4a4a; /* 更锐利明亮的切割线 */
+            border-radius: 12px;
+            /* 加深内阴影，增加外部投影让底板浮出纯黑背景 */
+            box-shadow: inset 0 10px 30px rgba(0,0,0,0.6), 0 20px 40px rgba(0,0,0,0.8);
+            z-index: 1; /* 位于视频卡片底层 */
+            transition: all 0.4s cubic-bezier(0.25, 0.8, 0.25, 1);
+            opacity: 0;
+            pointer-events: none;
+            will-change: top, opacity;
+        }
+        .region-bg.show {
+            opacity: 1;
+        }
+
+        /* --- 悬浮部件 (Dock & 字幕) --- */
+        .dock { height: 60px; width: 100%; background: rgba(40, 40, 40, 0.95); position: absolute; bottom: 0; left: 0; display: flex; align-items: center; justify-content: center; border-top: 1px solid #444; backdrop-filter: blur(10px); z-index: 50; transition: transform 0.4s cubic-bezier(0.25, 0.8, 0.25, 1); }
+        .dock.hidden { transform: translateY(100%); display: flex; }
+        .subtitle-bar { height: 150px; width: 100%; background: linear-gradient(to top, rgba(0,0,0,0.95), rgba(0,0,0,0.75)); position: absolute; left: 0; display: flex; flex-direction: column; align-items: center; justify-content: center; z-index: 40; border-top: 1px solid rgba(255,255,255,0.1); backdrop-filter: blur(8px); transition: transform 0.4s cubic-bezier(0.25, 0.8, 0.25, 1), bottom 0.4s cubic-bezier(0.25, 0.8, 0.25, 1); padding: 0 40px; }
+        .subtitle-bar.hidden { transform: translateY(100%); opacity: 0; }
+        .subtitle-text { color: #fbbf24; font-size: 24px; font-weight: 500; text-shadow: 0 2px 4px rgba(0,0,0,0.8); letter-spacing: 1px; width: 100%; text-align: center; margin-bottom: 8px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+        .subtitle-sub { color: #e5e7eb; font-size: 24px; font-weight: 400; width: 100%; text-align: center; text-shadow: 0 2px 4px rgba(0,0,0,0.8); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; font-family: ui-sans-serif, system-ui, sans-serif; }
+        .speaker-badge { position: absolute; top: 10px; left: 20px; font-size: 12px; color: rgba(255,255,255,0.5); background: rgba(255,255,255,0.1); padding: 2px 8px; border-radius: 4px; }
+
+        /* --- 其他 --- */
+        body.no-anim .video-card, body.no-anim .layout-area, body.no-anim .dock, body.no-anim .subtitle-bar, body.no-anim .scheme-column, body.no-anim .region-bg { transition: none !important; }
+        .controls { position: fixed; top: 20px; left: 50%; transform: translateX(-50%); background: rgba(255, 255, 255, 0.95); backdrop-filter: blur(12px); padding: 12px 20px; border-radius: 12px; box-shadow: 0 10px 40px rgba(0,0,0,0.15), 0 0 0 1px rgba(0,0,0,0.05); width: auto; min-width: 860px; z-index: 9999; cursor: grab; user-select: none; }
+        .controls:active { cursor: grabbing; box-shadow: 0 15px 50px rgba(0,0,0,0.2); }
+        .control-group { display: flex; flex-direction: column; gap: 4px; }
+        .control-label { font-size: 12px; font-weight: 700; color: #4b5563; }
+        .toggle-btn { padding: 4px 12px; border-radius: 6px; font-size: 13px; font-weight: 600; cursor: pointer; transition: all 0.2s; background: #f3f4f6; color: #6b7280; }
+        .toggle-btn.active { background: #2563eb; color: white; box-shadow: 0 2px 4px rgba(37, 99, 235, 0.2); }
+        #scale-outer { margin-top: 0; height: 100vh; display: flex; align-items: center; justify-content: center; }
+        #comparison-wrapper { display: flex; gap: 80px; transform-origin: center center; transition: width 0.4s ease; }
+
+        /* ===== 内嵌到 portfolio 时：隐藏自带控制面板，背景透明，交给外置控制器 ===== */
+        body.embed { background: transparent !important; }
+        body.embed #controls { display: none !important; }
+    </style>
+</head>
+<body class="bg-gray-50 min-h-screen overflow-hidden">
+
+    <!-- 控制面板 -->
+    <div id="controls" class="controls flex items-center justify-between gap-6">
+        <div class="absolute -top-3 left-1/2 -translate-x-1/2 w-12 h-1 bg-gray-300 rounded-full"></div>
+
+        <div class="control-group flex-1" style="min-width: 180px;">
+            <div class="flex justify-between items-baseline mb-1">
+                <span class="control-label">参会人数</span>
+                <span id="count-display" class="text-blue-600 font-bold text-lg leading-none">8</span>
+            </div>
+            <input type="range" id="participant-slider" min="1" max="20" value="8" class="w-full h-1.5 bg-gray-300 rounded-lg appearance-none cursor-pointer accent-blue-600">
+            <div class="flex justify-between text-[10px] text-gray-500 mt-1 font-mono"><span>1</span><span>8</span><span>10</span><span>17</span><span>20</span></div>
+        </div>
+        <div class="w-px h-8 bg-gray-300"></div>
+
+        <div class="control-group items-center">
+            <span class="control-label mb-1">发言人</span>
+            <div class="flex bg-gray-100 p-0.5 rounded-lg gap-0.5">
+                <div class="toggle-btn" data-value="2" onclick="setTopRow(2)">2人</div>
+                <div class="toggle-btn active" data-value="1" onclick="setTopRow(1)">1人</div>
+            </div>
+        </div>
+        <div class="w-px h-8 bg-gray-300"></div>
+
+        <div class="control-group items-start">
+            <span class="control-label mb-1">区域显示</span>
+            <div class="flex gap-4">
+                <div class="flex items-center gap-2"><input type="checkbox" id="dock-toggle" class="w-4 h-4 text-blue-600 rounded focus:ring-blue-500 cursor-pointer"><label for="dock-toggle" class="text-xs font-medium text-gray-600 select-none cursor-pointer">Dock栏</label></div>
+                <div class="flex items-center gap-2"><input type="checkbox" id="subtitle-toggle" class="w-4 h-4 text-blue-600 rounded focus:ring-blue-500 cursor-pointer"><label for="subtitle-toggle" class="text-xs font-medium text-gray-600 select-none cursor-pointer">字幕区</label></div>
+                <div class="flex items-center gap-2 border-l border-gray-200 pl-4"><input type="checkbox" id="anim-toggle" class="w-4 h-4 text-purple-600 rounded focus:ring-purple-500 cursor-pointer" checked><label for="anim-toggle" class="text-xs font-medium text-gray-600 select-none cursor-pointer">平滑动效</label></div>
+                <!-- 新增：加底色区分开关 -->
+                <div class="flex items-center gap-2 border-l border-gray-200 pl-4"><input type="checkbox" id="bg-toggle" class="w-4 h-4 text-indigo-600 rounded focus:ring-indigo-500 cursor-pointer"><label for="bg-toggle" class="text-xs font-medium text-indigo-700 select-none cursor-pointer">加底色区分</label></div>
+            </div>
+        </div>
+        <div class="w-px h-8 bg-gray-300"></div>
+
+        <div class="control-group items-start">
+            <span class="control-label mb-1">方案开关</span>
+            <div class="flex gap-4">
+                <div class="flex items-center gap-1.5"><input type="checkbox" id="show-a-toggle" class="w-3.5 h-3.5 text-blue-600 rounded focus:ring-blue-500 cursor-pointer" checked><label for="show-a-toggle" class="text-[11px] font-bold text-gray-600 select-none cursor-pointer">方案A1</label></div>
+                <div class="flex items-center gap-1.5"><input type="checkbox" id="show-a2-toggle" class="w-3.5 h-3.5 text-purple-600 rounded focus:ring-purple-500 cursor-pointer" checked><label for="show-a2-toggle" class="text-[11px] font-bold text-gray-600 select-none cursor-pointer">方案A2</label></div>
+            </div>
+        </div>
+    </div>
+
+    <!-- 演示区域 -->
+    <div id="scale-outer">
+        <div id="comparison-wrapper"></div>
+    </div>
+
+    <script>
+        const CONSTANTS = { WIDTH: 1920, HEIGHT: 1080, DOCK: 60, SUBTITLE: 150, RATIO: 16/9, GAP: 4, PAD: 4 };
+
+        let state = { count: 8, hasDock: false, hasSubtitle: false, topRowCount: 1, showA: true, showA2: false, maxBottomCols: 5, useAnimation: true, showBg: false };
+
+        // --- DOM 初始化与交互 ---
+        const schemesData = [
+            { id: 'a', title: '方案A1', desc: '经典流式 (底边最多2排)', cls: '' }
+        ];
+
+        document.getElementById('comparison-wrapper').innerHTML = schemesData.map(s => `
+            <div id="scheme-${s.id}" class="scheme-column">
+                <div class="screen-container">
+                    <div id="layout-area-${s.id}" class="layout-area">
+                        <!-- 预置底色高亮区，通过 CSS 控制层级位于卡片下方 -->
+                        <div class="region-bg"></div>
+                    </div>
+                    <div class="subtitle-bar hidden">
+                        <div class="speaker-badge">正在发言: 王总</div><div class="subtitle-text">“ 好的，针对第一季度全区核心业务情况...”</div><div class="subtitle-sub">"Okay, regarding the sales growth..."</div>
+                    </div>
+                    <div class="dock-bar dock hidden"><span class="text-white text-2xl font-bold tracking-wider opacity-80">dock栏（常显）</span></div>
+                </div>
+            </div>
+        `).join('');
+
+        const els = {
+            wrapper: document.getElementById('comparison-wrapper'),
+            countDisplay: document.getElementById('count-display'),
+            layouts: { a: document.getElementById('layout-area-a') },
+            columns: { a: document.getElementById('scheme-a') },
+            dockBars: document.querySelectorAll('.dock-bar'),
+            subBars: document.querySelectorAll('.subtitle-bar'),
+            speakerBtns: document.querySelectorAll('.toggle-btn[data-value]')
+        };
+
+        const controls = document.getElementById('controls');
+        let drag = { is: false, x: 0, y: 0 };
+        controls.onmousedown = e => { if(e.target.closest('input,label,.toggle-btn')) return; drag.is=true; const r=controls.getBoundingClientRect(); drag.x=e.clientX-r.left; drag.y=e.clientY-r.top; controls.style.transform='none'; controls.style.left=r.left+'px'; controls.style.top=r.top+'px'; };
+        window.onmousemove = e => { if(!drag.is) return; controls.style.left=e.clientX-drag.x+'px'; controls.style.top=e.clientY-drag.y+'px'; };
+        window.onmouseup = () => drag.is = false;
+
+        document.getElementById('participant-slider').oninput = e => { state.count = +e.target.value; els.countDisplay.innerText = state.count; render(); };
+        document.getElementById('dock-toggle').onchange = e => { state.hasDock = e.target.checked; render(); };
+        document.getElementById('subtitle-toggle').onchange = e => { state.hasSubtitle = e.target.checked; render(); };
+        document.getElementById('anim-toggle').onchange = e => { state.useAnimation = e.target.checked; render(); };
+        document.getElementById('bg-toggle').onchange = e => { state.showBg = e.target.checked; render(); }; // 绑定底色开关
+        document.getElementById('show-a-toggle').onchange = e => { state.showA = e.target.checked; render(); };
+        document.getElementById('show-a2-toggle').onchange = e => { state.showA2 = e.target.checked; render(); };
+        window.setTopRow = val => { state.topRowCount = val; els.speakerBtns.forEach(b => b.classList.toggle('active', +b.dataset.value === val)); render(); };
+
+        // --- 核心几何算法 ---
+
+        function getRowStructure(count, topCount, maxBot, maxRowsLimit) {
+            if (count <= 4) return [[1],[2],[2,1],[2,2]][count - 1]; // 保证 N<=4 时主视图结构稳定
+            let top = Math.min(count, topCount);
+            let structure = [top], rem = count - top, added = 0;
+            while (rem > 0 && added < maxRowsLimit) {
+                const r = Math.min(rem, maxBot);
+                structure.push(r); rem -= r; added++;
+            }
+            return structure;
+        }
+
+        // 大统一算子：涵盖 A1 / A2
+        // 修改：返回值结构从纯数组 geos 升级为 { geos, hasAudience, audienceBgTop }
+        function calculateLayout(availW, availH, maxBotRowsLimit) {
+            if (state.count <= 4) {
+                // N <= 4: 基础流式等比放大
+                const str = getRowStructure(state.count, state.topRowCount, 5, maxBotRowsLimit);
+                const w = (availW - (Math.max(...str) - 1) * CONSTANTS.GAP) / Math.max(...str);
+                const finalW = Math.min(w, ((availH - (str.length - 1) * CONSTANTS.GAP) / str.length) * CONSTANTS.RATIO);
+
+                let geos = [];
+                let totalH = str.length * (finalW / CONSTANTS.RATIO) + (str.length - 1) * CONSTANTS.GAP;
+                let startY = (availH - totalH) / 2 + CONSTANTS.PAD;
+                let idx = 0;
+
+                // 判断是否存在明显的“观众区”（即超过1排时，第2排及以后视为观众）
+                const hasAudience = str.length > 1;
+                // 计算背景顶部的黄金分割线：位于第一排和第二排的正中间
+                const audienceBgTop = hasAudience ? (startY + (finalW / CONSTANTS.RATIO) + CONSTANTS.GAP / 2) : 0;
+
+                str.forEach(c => {
+                    let rowW = c * finalW + (c - 1) * CONSTANTS.GAP;
+                    let startX = (availW - rowW) / 2 + CONSTANTS.PAD;
+                    for (let i = 0; i < c; i++) {
+                        geos.push({ index: idx++, x: startX + i * (finalW + CONSTANTS.GAP), y: startY, width: finalW, height: finalW / CONSTANTS.RATIO });
+                    }
+                    startY += finalW / CONSTANTS.RATIO + CONSTANTS.GAP;
+                });
+                return { geos, hasAudience, audienceBgTop };
+            }
+
+            // N >= 5: 尺寸锁定与动态协调策略
+            const refTop = 2; // 锁定顶部参考数为 2，保证发言人宽度上限不受切换影响
+
+            // 获取实际应渲染的人数结构
+            const actualTopCount = Math.min(state.count, state.topRowCount);
+            const actualStr = getRowStructure(state.count, actualTopCount, 5, maxBotRowsLimit);
+            const actualBotStr = actualStr.slice(1);
+            const actualBotRows = actualBotStr.length;
+
+            const refBotCols = Math.min(state.count - 1, 5);
+            const refBotRows = actualBotRows;
+
+            let w_bot = 0, h_bot = 0;
+            if (refBotRows > 0) {
+                w_bot = (availW - (refBotCols - 1) * CONSTANTS.GAP) / refBotCols;
+                h_bot = w_bot / CONSTANTS.RATIO;
+
+                // 避免过宽时底部过大
+                const maxBotAreaH = maxBotRowsLimit === 1 ? availH * 0.35 : availH * 0.50;
+                const max_h_bot = (maxBotAreaH - (refBotRows - 1) * CONSTANTS.GAP) / refBotRows;
+                if (h_bot > max_h_bot) {
+                    h_bot = max_h_bot;
+                    w_bot = h_bot * CONSTANTS.RATIO;
+                }
+            }
+
+            // 计算发言人框尺寸
+            const max_w_top = (availW - (refTop - 1) * CONSTANTS.GAP) / refTop;
+            const max_h_top_by_W = max_w_top / CONSTANTS.RATIO;
+            const max_h_top_by_H = availH - (h_bot * refBotRows) - (refBotRows > 0 ? (refBotRows - 1) * CONSTANTS.GAP : 0) - 2 * CONSTANTS.GAP;
+
+            const h_top = Math.max(0, Math.min(max_h_top_by_W, max_h_top_by_H));
+            const w_top = h_top * CONSTANTS.RATIO;
+
+            // 动态留白分配逻辑 (1 : 2 : 1)
+            const actualCardsH = h_top + (actualBotRows > 0 ? (actualBotRows * h_bot + (actualBotRows - 1) * CONSTANTS.GAP) : 0);
+            const remainingH = Math.max(0, availH - actualCardsH);
+
+            let marginY = CONSTANTS.GAP, middleGap = CONSTANTS.GAP;
+            if (actualBotRows > 0) {
+                marginY = Math.max(CONSTANTS.GAP, remainingH * 0.25);
+                middleGap = Math.max(CONSTANTS.GAP, remainingH * 0.50);
+            } else {
+                marginY = Math.max(CONSTANTS.GAP, remainingH * 0.5);
+                middleGap = 0;
+            }
+
+            let geos = [];
+            let globalIdx = 0;
+
+            // --- 渲染发言人区 ---
+            let currentY = CONSTANTS.PAD + marginY;
+            const tW = actualTopCount * w_top + (actualTopCount - 1) * CONSTANTS.GAP;
+            let startX_top = (availW - tW) / 2 + CONSTANTS.PAD;
+
+            for (let i = 0; i < actualTopCount; i++) {
+                geos.push({ index: globalIdx++, x: startX_top + i * (w_top + CONSTANTS.GAP), y: currentY, width: w_top, height: h_top });
+            }
+
+            // 计算背景顶部的黄金分割线：正好在发言人区和观众区的正中间
+            const hasAudience = actualBotRows > 0;
+            const audienceBgTop = hasAudience ? (currentY + h_top + middleGap / 2) : 0;
+
+            // --- 渲染观众区 ---
+            if (hasAudience) {
+                currentY += h_top + middleGap;
+                actualBotStr.forEach(c => {
+                    const bW = c * w_bot + (c - 1) * CONSTANTS.GAP;
+                    let startX_bot = (availW - bW) / 2 + CONSTANTS.PAD;
+                    for (let i = 0; i < c; i++) {
+                        geos.push({ index: globalIdx++, x: startX_bot + i * (w_bot + CONSTANTS.GAP), y: currentY, width: w_bot, height: h_bot });
+                    }
+                    currentY += h_bot + CONSTANTS.GAP;
+                });
+            }
+
+            return { geos, hasAudience, audienceBgTop };
+        }
+
+        function calculateA1(availW, availH) { return calculateLayout(availW, availH, 2); }
+        function calculateA2(availW, availH) { return calculateLayout(availW, availH, 1); }
+
+        // --- 视图渲染 ---
+
+        // 模拟与会人姓名；头像中间显示「名」的最后一个字（如 陈子峰 → 峰）
+        const NAMES = ['李明','陈子峰','王芳','张伟','刘洋','赵敏','孙强','周杰','吴磊','郑爽','冯程','蒋雯','韩雪','杨光','朱琳','秦岚','许飞','何静','曾毅','施宁'];
+        const nameFor = i => NAMES[i % NAMES.length];
+
+        function getCardHTML(geo, isOverflow) {
+            if (isOverflow) return `<i class="fas fa-users more-icon"></i><div class="more-text">共 ${state.count} 人</div>`;
+            const nm = nameFor(geo.index);
+            return `<div class="avatar" style="background: linear-gradient(135deg, #7cb3fb 0%, #4f93f4 100%)">${nm.slice(-1)}</div>
+                    <div class="user-name">${nm}</div>
+                    <div class="mic-status"><i class="fas fa-microphone${geo.index === 0 ? '' : '-slash'}"></i></div>`;
+        }
+
+        // 修改：接收整个 layoutResult 对象，用于统一控制背景和卡片
+        function syncCards(container, layoutResult) {
+            const { geos, hasAudience, audienceBgTop } = layoutResult;
+
+            // --- 处理区域区分底色 ---
+            const bgEl = container.querySelector('.region-bg');
+            if (bgEl) {
+                if (state.showBg && hasAudience) {
+                    bgEl.style.top = audienceBgTop + 'px';
+                    bgEl.classList.add('show');
+                } else {
+                    bgEl.classList.remove('show');
+                }
+            }
+
+            // --- 处理视频卡片 ---
+            const existing = Array.from(container.children).reduce((m, c) => {
+                if (c.classList.contains('video-card')) m.set(+c.dataset.index, c);
+                return m;
+            }, new Map());
+            const active = new Set();
+            const hasOverflow = state.count > geos.length;
+
+            geos.forEach((geo, i) => {
+                active.add(geo.index);
+                let card = existing.get(geo.index);
+                const isOverflow = hasOverflow && i === geos.length - 1;
+
+                if (!card) {
+                    card = document.createElement('div'); card.dataset.index = geo.index;
+                    container.appendChild(card); requestAnimationFrame(() => card.classList.add('visible'));
+                }
+
+                card.className = `video-card visible ${isOverflow ? 'more-card' : ''}`;
+
+                if (card.dataset.type !== (isOverflow ? 'more' : 'user') || isOverflow) {
+                    card.innerHTML = getCardHTML(geo, isOverflow);
+                    card.dataset.type = isOverflow ? 'more' : 'user';
+                }
+
+                if (!isOverflow) {
+                    card.classList.toggle('talking', geo.index === 0);
+                    const mic = card.querySelector('.mic-status i');
+                    if (mic) mic.className = `fas fa-microphone${geo.index === 0 ? '' : '-slash'}`;
+                }
+
+                Object.assign(card.style, { left: geo.x+'px', top: geo.y+'px', width: geo.width+'px', height: geo.height+'px' });
+            });
+
+            existing.forEach((c, idx) => !active.has(idx) && (c.classList.remove('visible'), setTimeout(() => c.parentNode && c.remove(), 500)));
+        }
+
+        function render() {
+            els.dockBars.forEach(b => b.classList.toggle('hidden', !state.hasDock));
+            els.subBars.forEach(b => { b.classList.toggle('hidden', !state.hasSubtitle); b.style.bottom = state.hasDock ? `${CONSTANTS.DOCK}px` : '0px'; });
+            document.body.classList.toggle('no-anim', !state.useAnimation);
+
+            els.columns.a.classList.toggle('hidden-panel', !state.showA);
+
+            const effH = CONSTANTS.HEIGHT - (state.hasDock ? CONSTANTS.DOCK : 0) - (state.hasSubtitle ? CONSTANTS.SUBTITLE : 0);
+            const aW = CONSTANTS.WIDTH - CONSTANTS.PAD * 2, aH = effH - CONSTANTS.PAD * 2;
+
+            if (state.showA) syncCards(els.layouts.a, calculateA1(aW, aH));
+
+            resizePreview();
+        }
+
+        function resizePreview() {
+            const count = (state.showA ? 1 : 0) + (state.showA2 ? 1 : 0);
+            if (!count) return els.wrapper.style.transform = `scale(0)`;
+            const scale = Math.min((window.innerWidth - 80) / (CONSTANTS.WIDTH * count + (count - 1) * 60 + 24), (window.innerHeight - 80) / CONSTANTS.HEIGHT, 0.96);
+            els.wrapper.style.transform = `scale(${scale})`;
+        }
+        window.addEventListener('resize', resizePreview);
+
+        render();
+
+        // ===== 外置控制器桥接（portfolio 用 postMessage 驱动；?embed=1 时隐藏自带面板） =====
+        if (new URLSearchParams(location.search).get('embed') === '1') {
+            document.body.classList.add('embed');
+        }
+        window.addEventListener('message', e => {
+            const d = e.data || {};
+            if (!d || d.target !== 'layout-demo') return;
+            if (d.type === 'setState' && d.patch) {
+                Object.assign(state, d.patch);
+                // 同步自带控件（即使隐藏也保持状态一致）
+                if ('topRowCount' in d.patch) els.speakerBtns.forEach(b => b.classList.toggle('active', +b.dataset.value === state.topRowCount));
+                if ('count' in d.patch) {
+                    document.getElementById('count-display').innerText = state.count;
+                    document.getElementById('participant-slider').value = state.count;
+                }
+                render();
+            }
+        });
+    </script>
+</body>
+</html>
