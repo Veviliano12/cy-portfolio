@@ -203,12 +203,18 @@ function Band({
       card.current?.setNextKinematicTranslation({ x: vec.x - dragged.x, y: vec.y - dragged.y, z: vec.z - dragged.z });
     }
     if (fixed.current) {
-      // 驱动锚点上下：展开时落到 y=4（正常垂下），收起时升到 y=14（移出视野上方）。
-      // 卡片始终是 dynamic，靠绳子+重力跟随锚点 → 落下/收回都是自然物理弹跳。
-      const targetY = shownRef.current ? 4 : 14;
-      const rate = shownRef.current ? 9 : 5; // 落下更快更有冲击感，收起更平缓
+      // 驱动锚点上下：展开时落到 y=4（正常垂下），收起时升到视野上方。
+      // 卡片始终是 dynamic，靠绳子+重力跟随锚点 → 落下自然弹跳。
+      const shownNow = shownRef.current;
       const cy = fixed.current.translation().y;
-      const ny = THREE.MathUtils.lerp(cy, targetY, Math.min(1, delta * rate));
+      let ny;
+      if (shownNow) {
+        // 落下：指数式快速逼近 y=4，制造下坠冲击与回弹
+        ny = THREE.MathUtils.lerp(cy, 4, Math.min(1, delta * 9));
+      } else {
+        // 收起：恒速平稳上提（像被卷线缓缓收回），避免指数式起步猛拽导致卡片乱甩
+        ny = Math.min(15, cy + delta * 6);
+      }
       fixed.current.setNextKinematicTranslation({ x: 0, y: ny, z: 0 });
 
       [j1, j2].forEach(ref => {
@@ -226,7 +232,10 @@ function Band({
       band.current.geometry.setPoints(curve.getPoints(isMobile ? 16 : 32));
       ang.copy(card.current.angvel());
       rot.copy(card.current.rotation());
-      card.current.setAngvel({ x: ang.x, y: ang.y - rot.y * 0.25, z: ang.z });
+      // 收起时强力抑制角速度，避免卡片被往上提时来回乱甩
+      const spin = shownNow ? 0.25 : 0.85;
+      const damp = shownNow ? 1 : 0.6;
+      card.current.setAngvel({ x: ang.x * damp, y: (ang.y - rot.y * spin) * damp, z: ang.z * damp });
     }
   });
 

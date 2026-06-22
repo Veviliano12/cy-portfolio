@@ -74,7 +74,9 @@
     }
     /* 展开/收起改由 iframe 内的物理动画完成（锚点上下移动 → 自然落下/收回） */
     @media (max-width: 900px) {
-      .lanyard-frame { display: none; }   /* 移动端竖屏不显示，保持简洁 */
+      /* 移动端默认不显示，保持简洁；点击顶部按钮掉落工牌时才显示（居中、更宽） */
+      .lanyard-frame { display: none; right: 0; left: 0; width: 100%; height: 78%; }
+      .lanyard-frame.lanyard-show { display: block; z-index: 30; }
     }
     /* 首屏标题/副标题不拦截指针，避免压住右侧工牌导致无法拖拽（标题本身不可点） */
     .hero { pointer-events: none; }
@@ -2052,6 +2054,12 @@
       var shown = false;   /* 默认不掉落，点击后才掉落 */
       btn.addEventListener('click', function () {
         shown = !shown;
+        // 移动端 iframe 默认 display:none，掉落时先显示；收起时等物理动画播完再隐藏
+        if (shown) {
+          frame.classList.add('lanyard-show');
+        } else {
+          setTimeout(function () { frame.classList.remove('lanyard-show'); }, 1400);
+        }
         try {
           frame.contentWindow.postMessage({ target: 'lanyard', show: shown }, '*');
         } catch (e) {}
