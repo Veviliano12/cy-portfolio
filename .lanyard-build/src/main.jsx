@@ -2,6 +2,8 @@ import { StrictMode, useEffect, useRef, useState } from 'react';
 import { createRoot } from 'react-dom/client';
 import Lanyard from './Lanyard.jsx';
 import './index.css';
+import avatarSrc from './avatar.png';
+import backAvatarSrc from './backAvatar.png';
 
 // 画一个白色"雨云"图标：蓬松的云 + 3 滴明显分开的雨滴（比 emoji 剪影更清楚）
 function drawRainCloud(ctx, cx, cy, s) {
@@ -59,63 +61,147 @@ function cardBase(ctx, W, H) {
   ctx.fillRect(0, 0, W, H);
 }
 
-// 正面：🌧️ + CHENYU / PORTFOLIO
-function makeFrontImage() {
+// 圆角矩形路径（兼容旧浏览器）
+function roundRectPath(ctx, x, y, w, h, r) {
+  ctx.beginPath();
+  ctx.moveTo(x + r, y);
+  ctx.lineTo(x + w - r, y);
+  ctx.arcTo(x + w, y, x + w, y + r, r);
+  ctx.lineTo(x + w, y + h - r);
+  ctx.arcTo(x + w, y + h, x + w - r, y + h, r);
+  ctx.lineTo(x + r, y + h);
+  ctx.arcTo(x, y + h, x, y + h - r, r);
+  ctx.lineTo(x, y + r);
+  ctx.arcTo(x, y, x + r, y, r);
+  ctx.closePath();
+}
+
+// 正面：插画头像 + 姓名（异步，需要加载图片）
+async function makeFrontImage() {
+  const img = new Image();
+  await new Promise((res, rej) => {
+    img.onload = res;
+    img.onerror = rej;
+    img.src = backAvatarSrc;
+  });
+
   const W = 512;
   const H = 768;
   const c = document.createElement('canvas');
   c.width = W;
   c.height = H;
   const ctx = c.getContext('2d');
+
+  // 深蓝背景
   cardBase(ctx, W, H);
+
+  // PNG 背景已透明，直接绘制；头像稍微靠下
+  const px = 16, py = 40, pw = W - 32, ph = 540, pr = 14;
+  const scale = Math.max(pw / img.width, ph / img.height);
+  const dw = img.width * scale;
+  const dh = img.height * scale;
+  const dx = px + (pw - dw) / 2;
+  const dy = py + (ph - dh) / 2;
+
+  ctx.save();
+  roundRectPath(ctx, px, py, pw, ph, pr);
+  ctx.clip();
+  ctx.drawImage(img, dx, dy, dw, dh);
+  ctx.restore();
+
+  // 细分隔线（靠近底部文字上方）
+  const lineY = H - 112;
+  ctx.strokeStyle = 'rgba(37,216,255,0.20)';
+  ctx.lineWidth = 1;
+  ctx.beginPath();
+  ctx.moveTo(px, lineY);
+  ctx.lineTo(px + pw, lineY);
+  ctx.stroke();
+
+  // 姓名 — 靠近底部
   ctx.textAlign = 'center';
   ctx.textBaseline = 'middle';
-  ctx.font = '220px "Apple Color Emoji", "Segoe UI Emoji", sans-serif';
-  ctx.fillText('🌧️', W / 2, H * 0.40);
   ctx.fillStyle = '#eaf6ff';
-  ctx.font = '700 64px -apple-system, "PingFang SC", Arial, sans-serif';
-  ctx.fillText('CHENYU', W / 2, H * 0.66);
+  ctx.font = '700 60px -apple-system, "PingFang SC", Arial, sans-serif';
+  ctx.fillText('CHENYU', W / 2, H - 76);
+
+  // 副标题
   ctx.fillStyle = 'rgba(37,216,255,0.9)';
-  ctx.font = '600 28px -apple-system, "PingFang SC", Arial, sans-serif';
-  ctx.fillText('PORTFOLIO', W / 2, H * 0.74);
-  ctx.fillStyle = 'rgba(255,255,255,0.10)';
-  ctx.fillRect(W * 0.18, H * 0.86, W * 0.64, 4);
+  ctx.font = '600 26px -apple-system, "PingFang SC", Arial, sans-serif';
+  ctx.fillText('ENTP', W / 2, H - 36);
+
   return c.toDataURL('image/png');
 }
 
-// 反面：ENTP
-function makeBackImage() {
+// 反面：头像 + CHENYU + ENTP（异步，需要加载图片）
+async function makeBackImage() {
+  const img = new Image();
+  await new Promise((res, rej) => {
+    img.onload = res;
+    img.onerror = rej;
+    img.src = backAvatarSrc;
+  });
+
   const W = 512;
   const H = 768;
   const c = document.createElement('canvas');
   c.width = W;
   c.height = H;
   const ctx = c.getContext('2d');
+
   cardBase(ctx, W, H);
+
+  // 头像居中填充上部区域（PNG 已有透明通道，直接绘制）
+  const px = 56, py = 48, pw = W - px * 2, ph = 430, pr = 14;
+  const scale = Math.max(pw / img.width, ph / img.height);
+  const dw = img.width * scale;
+  const dh = img.height * scale;
+  const dx = px + (pw - dw) / 2;
+  const dy = py + (ph - dh) / 2;
+
+  ctx.save();
+  roundRectPath(ctx, px, py, pw, ph, pr);
+  ctx.clip();
+  ctx.drawImage(img, dx, dy, dw, dh);
+  ctx.restore();
+
+  // 细分隔线
+  ctx.strokeStyle = 'rgba(37,216,255,0.25)';
+  ctx.lineWidth = 1;
+  ctx.beginPath();
+  ctx.moveTo(px, py + ph + 20);
+  ctx.lineTo(px + pw, py + ph + 20);
+  ctx.stroke();
+
+  // 姓名
   ctx.textAlign = 'center';
   ctx.textBaseline = 'middle';
   ctx.fillStyle = '#eaf6ff';
-  ctx.font = '800 150px -apple-system, "PingFang SC", Arial, sans-serif';
-  ctx.fillText('ENTP', W / 2, H * 0.46);
-  ctx.fillStyle = 'rgba(37,216,255,0.85)';
+  ctx.font = '700 60px -apple-system, "PingFang SC", Arial, sans-serif';
+  ctx.fillText('CHENYU', W / 2, py + ph + 54);
+
+  // 人格类型
+  ctx.fillStyle = 'rgba(37,216,255,0.9)';
   ctx.font = '600 26px -apple-system, "PingFang SC", Arial, sans-serif';
-  ctx.fillText('PERSONALITY', W / 2, H * 0.56);
-  ctx.fillStyle = 'rgba(255,255,255,0.10)';
-  ctx.fillRect(W * 0.18, H * 0.7, W * 0.64, 4);
+  ctx.fillText('ENTP', W / 2, py + ph + 96);
+
   return c.toDataURL('image/png');
 }
-
-const frontImg = makeFrontImage();
-const backImg = makeBackImage();
 const bandImg = makeBandImage();
 
 function App() {
-  // 默认不掉落（收起在视野上方），点击顶部按钮才展开掉落
   const [shown, setShown] = useState(false);
   const [dropKey, setDropKey] = useState(0);
   const shownRef = useRef(false);
+  const [frontImg, setFrontImg] = useState(null);
+  const [backImg, setBackImg] = useState(null);
 
-  // 监听父页发来的展开/收起指令；每次"展开"自增 dropKey → 重挂载 → 复用页面加载的自然掉落
+  // 异步加载正反面插画
+  useEffect(() => {
+    makeFrontImage().then(setFrontImg);
+    makeBackImage().then(setBackImg);
+  }, []);
+
   useEffect(() => {
     function onMsg(e) {
       const d = e.data;

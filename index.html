@@ -519,6 +519,7 @@
       color: var(--muted);
       background: rgba(255,255,255,.04);
     }
+    .proj-tags { display: none; }
 
     /* 无外壳的 demo（去掉浏览器标题栏后，自身加圆角/描边/阴影），铺满展示区 */
     .demo-viewport.plain {
@@ -569,30 +570,32 @@
     .mr-controller {
       width: fit-content; max-width: 100%;
       margin: 14px auto 0;
-      padding: 8px 12px;
-      border-radius: 14px;
       display: flex; flex-wrap: wrap; align-items: center; gap: 7px 8px;
-      background: rgba(255,255,255,.04);
-      border: 1px solid rgba(255,255,255,.12);
-      backdrop-filter: blur(8px);
     }
     /* 开发/上线状态徽标 */
-    .proj-top { display: flex; align-items: center; gap: 12px; margin-bottom: 16px; flex-wrap: wrap; }
+    .proj-top { display: flex; align-items: center; gap: 0; margin-bottom: 16px; flex-wrap: wrap; }
     .proj-top .eyebrow { margin-bottom: 0; }
     .proj-status {
-      font-size: 12px; font-weight: 600; padding: 3px 11px; border-radius: 30px;
-      border: 1px solid transparent; white-space: nowrap;
-      display: inline-flex; align-items: center; gap: 6px;
+      font-size: 12px; font-weight: 600; white-space: nowrap;
+      display: inline-flex; align-items: center; gap: 8px; padding-left: 12px;
     }
-    .proj-status::before { content: ""; width: 6px; height: 6px; border-radius: 50%; background: currentColor; }
-    .s-live { color: #34d399; background: rgba(52,211,153,.12); border-color: rgba(52,211,153,.3); }
-    .s-gray { color: #fbbf24; background: rgba(251,191,36,.12); border-color: rgba(251,191,36,.3); }
-    .s-dev  { color: #60a5fa; background: rgba(96,165,250,.12); border-color: rgba(96,165,250,.3); }
+    .proj-status::before { content: ""; width: 1px; height: 13px; background: rgba(255,255,255,0.15); border-radius: 0; }
+    .s-live { color: #34d399; }
+    .s-gray { color: #fbbf24; }
+    .s-dev  { color: #60a5fa; }
     .mrc-head { display: none; }   /* 紧凑模式不显示标题 */
     .mrc-cap { font-size: 13px; color: var(--muted); white-space: nowrap; }
     /* eShare 控制器：数字按钮 + 相对弹窗居中 */
     .eshare-ctl { margin-left: auto; margin-right: auto; }
     .eshare-ctl .mrc-modes button { min-width: 38px; padding: 5px 0; }
+    .eshare-divider { width: 1px; height: 18px; background: rgba(255,255,255,.2); align-self: center; margin: 0 4px; flex-shrink: 0; }
+    .eshare-count-label { font-size: 12px; color: var(--muted); white-space: nowrap; padding: 0 4px; align-self: center; }
+    .eshare-count-group {
+      display: inline-flex; align-items: center; overflow: hidden;
+      max-width: 260px; opacity: 1;
+      transition: max-width 0.38s cubic-bezier(0.4,0,0.2,1), opacity 0.28s ease;
+    }
+    .eshare-count-group.eshare-hidden { max-width: 0; opacity: 0; pointer-events: none; }
     .mrc-modes {
       display: flex; gap: 3px; padding: 3px;
       background: rgba(0,0,0,.3); border-radius: 30px;
@@ -892,14 +895,14 @@
           <span class="eyebrow">PROJECT 01 · 情感</span>
           <span class="proj-status s-gray">已灰度</span>
         </div>
-        <h2 class="proj-title">会议室 3.0 · 情感提升</h2>
+        <h2 class="proj-title">下一代会议室 · 视觉语言升级</h2>
         <p class="proj-lead">
-          在体感、智感之上，用一套会呼吸的大屏视觉，让会议室更有温度、更有辨识度。
+          从年代感的大屏 UI，到自然感的情感体验
         </p>
-        <p class="proj-body">
-          重做大屏首页的视觉系统：水天一色与星空全球窗交替呼吸、品牌色卡片自下而上浮出——
-          把冷冰冰的设备界面，变成一块"想多看一眼"的品牌大屏。
-        </p>
+        <ul class="proj-points">
+          <li><b>自然情境视觉系统：</b>天空之镜背景，随时间变化</li>
+          <li><b>克制的设计手段：</b>没有大改骨架，开发成本可控，用户的操作路径不需要重新学</li>
+        </ul>
         <div class="proj-tags">
           <span>视觉系统</span><span>大屏动效</span><span>品牌升级</span><span>情感化设计</span>
         </div>
@@ -907,180 +910,7 @@
     </div>
   </section>
 
-  <!-- ===== 项目区块：会议 AI 听 ===== -->
-  <section class="project-section alt" id="ai-listening">
-    <div class="project-inner">
-      <!-- 左：可交互 HTML demo（无外壳/无标题栏） -->
-      <div class="demo-col">
-        <div class="demo-viewport plain" data-base="1280" style="aspect-ratio:1280/800;">
-          <iframe id="alFrame" src="demos/ai-listening/index.html" style="width:1280px;height:800px;"
-                  title="会议 AI 听 可交互 Demo" loading="lazy"></iframe>
-          <button class="demo-fs-btn" title="全屏体验" aria-label="全屏">
-            <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M8 3H5a2 2 0 0 0-2 2v3m18 0V5a2 2 0 0 0-2-2h-3M8 21H5a2 2 0 0 1-2-2v-3m18 0v3a2 2 0 0 1-2 2h-3"/></svg>
-          </button>
-        </div>
-        <!-- 控制器：图文纪要 / AI 问答 一键演示 -->
-        <div class="mr-controller al-ctl" data-frame="alFrame">
-          <div class="mrc-modes">
-            <button data-al="graphic" class="active">图文纪要</button>
-            <button data-al="qa">AI 问答</button>
-          </div>
-        </div>
-      </div>
-
-      <!-- 右：文字介绍 -->
-      <div class="text-col">
-        <div class="proj-top">
-          <span class="eyebrow">PROJECT 02 · AI 能力</span>
-          <span class="proj-status s-dev">开发中</span>
-        </div>
-        <h2 class="proj-title">会议 AI 纪要能力升级</h2>
-        <p class="proj-lead">
-          让一场三小时的会议，沉淀成可检索、可复用、可追溯的结构化知识。
-        </p>
-        <p class="proj-body">
-          面向 Meeting 会议场景的 AI 听记系统。<br>
-          主导的关键设计：把纯文本纪要升级为「图文纪要」让信息一眼可读；把藏在侧边栏、
-          没人用的「小微」入口重做成顶部悬浮胶囊，用轮播 + Top 问答把 AI 能力推到用户眼前。
-        </p>
-        <ul class="proj-points">
-          <li><b>图文纪要</b>——纯文本纪要 → 图文卡片，可视化更直观</li>
-          <li><b>小微悬浮胶囊</b>——侧边栏入口 → 顶部胶囊，轮播曝光 + 3 类高频问答</li>
-        </ul>
-        <button class="detail-btn" type="button" data-detail="aiListenDetail">查看设计 &amp; 我的贡献 &nbsp;→</button>
-        <div class="proj-tags">
-          <span>图文纪要</span><span>信息结构化</span><span>数据驱动</span><span>交互设计</span>
-        </div>
-      </div>
-    </div>
-  </section>
-
-  <!-- ===== 会议 AI 听 · 设计与贡献大弹窗（2 页） ===== -->
-  <div class="detail-overlay" id="aiListenDetail" aria-hidden="true">
-    <div class="detail-modal" role="dialog" aria-modal="true">
-      <button class="detail-close" aria-label="关闭">✕</button>
-      <div class="detail-head">
-        <div class="detail-kicker">会议 AI 听 · 设计与我的贡献</div>
-        <h3 class="detail-title">两处关键设计：<em>图文纪要</em> &amp; <em>小微悬浮胶囊</em></h3>
-        <div class="detail-tabs">
-          <button class="dt active" data-page="0">① 图文纪要</button>
-          <button class="dt" data-page="1">② 小微 → 悬浮胶囊</button>
-        </div>
-      </div>
-      <div class="detail-body">
-        <!-- 第 1 页：图文纪要 -->
-        <section class="detail-page active" data-page="0">
-          <div class="dcard">
-            <div class="dh">设计目标</div>
-            <p class="dbig">从<b>纯文本纪要</b> → <b>图文纪要</b>，让会议结论可视化、更直观、可扫读。</p>
-          </div>
-          <div class="dgrid2">
-            <div class="dcard">
-              <div class="dh">改动前</div>
-              <p>大段纯文字纪要，信息平铺、重点不突出，读完一场长会成本高、不愿回看。</p>
-            </div>
-            <div class="dcard">
-              <div class="dh">改动后</div>
-              <p>按议题分段，把结论 / 决策 / 待办组织成<b>图文要点卡片</b>，配图示与缩略图，随议题动态更新，一眼读懂。</p>
-            </div>
-          </div>
-          <div class="dcard dnote-card">
-            <div class="dh">我的贡献</div>
-            <p class="dbig" style="color:var(--muted)">（这部分你上次没展开，先放一版我的推断，你确认/补充：）</p>
-            <ul class="dlist">
-              <li>定义「图文要点」的信息结构与卡片样式，把转写结论翻译成可视化模块。</li>
-              <li>设计图文要点随<b>议题分段</b>动态更新的交互，让纪要与时间轴联动。</li>
-            </ul>
-          </div>
-        </section>
-
-        <!-- 第 2 页：小微 → 悬浮胶囊 -->
-        <section class="detail-page" data-page="1">
-          <div class="dcard">
-            <div class="dh">改动背景</div>
-            <ul class="dlist">
-              <li>很多人不用「小微」——能力差，改动前入口就只是侧边栏里「小微助手」四个字。</li>
-              <li>2–3 月数据发现用户其实<b>用得很多</b>，于是赶紧做能力升级。</li>
-            </ul>
-          </div>
-          <div class="dgrid2">
-            <div class="dcard">
-              <div class="dh">遇到的问题</div>
-              <ol class="dlist dnum">
-                <li>用户不信任小微，习惯<b>关闭侧边栏</b> → 新功能上线后用户<b>无感知</b>。</li>
-                <li>到底先上<b>什么问答能力</b>？</li>
-              </ol>
-            </div>
-            <div class="dcard">
-              <div class="dh">我的解法</div>
-              <div class="drow"><span class="dtag">解决无感知</span><p>入口从侧边栏改成<b>顶部悬浮胶囊</b>，并用<b>轮播</b>把关键内容/新能力滚动曝光在用户眼前。</p></div>
-              <div class="drow"><span class="dtag">先上什么</span><p>做<b>数据分析</b>，归纳出 3 类 Top 高频诉求，优先上线这三个。</p></div>
-            </div>
-          </div>
-          <div class="dcard">
-            <div class="dh">数据分析 → 首批上线的 3 类问答</div>
-            <div class="dstats" style="grid-template-columns:repeat(3,1fr)">
-              <div class="dstat"><b>知识类</b><span>知识类问答</span></div>
-              <div class="dstat"><b>找某人</b><span>问与某人相关的总结</span></div>
-              <div class="dstat"><b>找我的</b><span>问与我相关的任务</span></div>
-            </div>
-          </div>
-        </section>
-      </div>
-      <div class="detail-foot">
-        <button class="dnav dprev">← 上一页</button>
-        <div class="ddots"><span class="dd active"></span><span class="dd"></span></div>
-        <button class="dnav dnext">下一页 →</button>
-      </div>
-    </div>
-  </div>
-
-  <!-- ===== 项目区块：AI 翻译 ===== -->
-  <section class="project-section" id="ai-translation">
-    <div class="project-inner">
-      <!-- 左：电子屏直接进入「翻译」页（无控制器、无屏幕形态切换） -->
-      <div class="demo-col">
-        <div class="demo-viewport bare" data-base="1984" style="aspect-ratio:1984/1144;">
-          <iframe id="transFrame" src="demos/meeting-room/index.html?view=translation"
-                  style="width:1984px;height:1144px;background:transparent;"
-                  title="AI 翻译大屏 Demo" loading="lazy"></iframe>
-          <button class="demo-fs-btn" title="全屏体验" aria-label="全屏">
-            <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M8 3H5a2 2 0 0 0-2 2v3m18 0V5a2 2 0 0 0-2-2h-3M8 21H5a2 2 0 0 1-2-2v-3m18 0v3a2 2 0 0 1-2 2h-3"/></svg>
-          </button>
-        </div>
-        <!-- 控制器：翻译场景一键预览（不带 data-target，避免被通用控制器接管） -->
-        <div class="mr-controller trans-ctl" data-frame="transFrame">
-          <div class="mrc-modes">
-            <button data-preset="reset" class="active">全屏翻译</button>
-            <button data-preset="home">回到首页</button>
-            <button data-preset="meeting">会中看翻译</button>
-            <button data-preset="share">共享中看翻译</button>
-          </div>
-        </div>
-      </div>
-
-      <!-- 右：文字介绍 -->
-      <div class="text-col">
-        <div class="proj-top">
-          <span class="eyebrow">PROJECT 03 · 智感</span>
-          <span class="proj-status s-gray">已灰度</span>
-        </div>
-        <h2 class="proj-title">大屏 AI 翻译</h2>
-        <p class="proj-lead">
-          会议室大屏上的实时双语字幕，让跨语言会议不再有信息差。
-        </p>
-        <p class="proj-body">
-          一键开启实时翻译：原文与译文逐句对照、可调字号与语种、随会议常驻——
-          把"听不懂"挡在门外，让每个人都跟得上同一场讨论。
-        </p>
-        <div class="proj-tags">
-          <span>实时翻译</span><span>双语字幕</span><span>跨语言会议</span><span>大屏交互</span>
-        </div>
-      </div>
-    </div>
-  </section>
-
-  <!-- ===== 项目区块：TRIZ × eShare AI 无线投影 ===== -->
+  <!-- ===== 项目区块：eShare · AI 无线投影 ===== -->
   <section class="project-section alt" id="eshare">
     <div class="project-inner">
       <!-- 左：可交互 eShare 投影 demo（自带状态控制器） -->
@@ -1093,14 +923,21 @@
             <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M8 3H5a2 2 0 0 0-2 2v3m18 0V5a2 2 0 0 0-2-2h-3M8 21H5a2 2 0 0 1-2-2v-3m18 0v3a2 2 0 0 1-2 2h-3"/></svg>
           </button>
         </div>
-        <!-- 控制器：大屏左下方，切换识别到的投影码数量 -->
+        <!-- 控制器：版本切换 + 投影码数量（共享一个胶囊） -->
         <div class="mr-controller eshare-ctl">
-          <span class="mrc-cap">识别到的投影码数量</span>
-          <div class="mrc-modes" role="tablist">
-            <button data-count="0" class="active">0</button>
-            <button data-count="1">1</button>
-            <button data-count="2">2</button>
-            <button data-count="3">3</button>
+          <div class="mrc-modes" id="eshareCapsule">
+            <button data-version="1">版本1</button>
+            <button data-version="2">版本2</button>
+            <button data-version="3" class="active">版本3</button>
+            <span class="eshare-count-group" id="eshareCountGroup">
+              <span class="eshare-divider"></span>
+              <span class="eshare-count-label">投影码数量</span>
+              <div class="mrc-step" id="eshareCountStep">
+                <button class="mrc-minus" id="eshareCountMinus">−</button>
+                <span class="mrc-val" id="eshareCountVal">2</span>
+                <button class="mrc-plus" id="eshareCountPlus">+</button>
+              </div>
+            </span>
           </div>
         </div>
       </div>
@@ -1108,17 +945,17 @@
       <!-- 右：文字介绍 -->
       <div class="text-col">
         <div class="proj-top">
-          <span class="eyebrow">PROJECT 04 · TRIZ 求解</span>
+          <span class="eyebrow">PROJECT 02 · 智感</span>
           <span class="proj-status s-live">已上线</span>
         </div>
         <h2 class="proj-title">eShare · AI 无线投影</h2>
         <p class="proj-lead">
-          用 TRIZ 发明原理求解"投屏码又难记又难输"的老大难，让无线投影一步到位。
+          从「纠结选码」，到「一眼选对」的智感体验
         </p>
-        <p class="proj-body">
-          以 TRIZ 矛盾矩阵拆解投影痛点，设计 AI 自动识别投影码方案：识别到几个屏就给几个选项，
-          点一下直接投——告别手输六位码。左侧 demo 可切换识别状态，体验不同场景下的交互。
-        </p>
+        <ul class="proj-points">
+          <li><b>多码并存</b> —— 以用户熟悉的鸿蒙流转方式呈现，降低学习和接受成本</li>
+          <li><b>保留原有操作路径</b> —— 不想选投影码，支持用户手动输入，新旧习惯都能用</li>
+        </ul>
         <button class="detail-btn" type="button" data-detail="eshareDetail">查看完整方案 &nbsp;→</button>
         <div class="proj-tags">
           <span>TRIZ 求解</span><span>AI 识别</span><span>无线投影</span><span>交互原型</span>
@@ -1243,6 +1080,175 @@
     </div>
   </div>
 
+  <!-- ===== 项目区块：会议 AI 听 ===== -->
+  <section class="project-section" id="ai-listening">
+    <div class="project-inner">
+      <!-- 左：可交互 HTML demo（无外壳/无标题栏） -->
+      <div class="demo-col">
+        <div class="demo-viewport plain" data-base="1280" style="aspect-ratio:1280/800;">
+          <iframe id="alFrame" src="demos/ai-listening/index.html" style="width:1280px;height:800px;"
+                  title="会议 AI 听 可交互 Demo" loading="lazy"></iframe>
+          <button class="demo-fs-btn" title="全屏体验" aria-label="全屏">
+            <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M8 3H5a2 2 0 0 0-2 2v3m18 0V5a2 2 0 0 0-2-2h-3M8 21H5a2 2 0 0 1-2-2v-3m18 0v3a2 2 0 0 1-2 2h-3"/></svg>
+          </button>
+        </div>
+        <!-- 控制器：图文纪要 / AI 问答 一键演示 -->
+        <div class="mr-controller al-ctl" data-frame="alFrame">
+          <div class="mrc-modes">
+            <button data-al="graphic" class="active">图文纪要</button>
+            <button data-al="qa">AI 问答</button>
+          </div>
+        </div>
+      </div>
+
+      <!-- 右：文字介绍 -->
+      <div class="text-col">
+        <div class="proj-top">
+          <span class="eyebrow">PROJECT 03 · 智感</span>
+          <span class="proj-status s-dev">开发中</span>
+        </div>
+        <h2 class="proj-title">会议 AI 纪要能力升级</h2>
+        <p class="proj-lead">
+          从纯文本到图文纪要，辅助用户理解AI纪要
+        </p>
+        <ul class="proj-points">
+          <li><b>图文要点</b> —— 要点回顾从纯文字升级为图文卡片，结论一眼读懂</li>
+          <li><b>小微悬浮胶囊</b> —— 侧边栏没人注意，改成顶部悬浮轮播主动露出Top 3用户高频问答</li>
+        </ul>
+        <button class="detail-btn" type="button" data-detail="aiListenDetail">查看设计 &amp; 我的贡献 &nbsp;→</button>
+        <div class="proj-tags">
+          <span>图文纪要</span><span>信息结构化</span><span>数据驱动</span><span>交互设计</span>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ===== 会议 AI 听 · 设计与贡献大弹窗（2 页） ===== -->
+  <div class="detail-overlay" id="aiListenDetail" aria-hidden="true">
+    <div class="detail-modal" role="dialog" aria-modal="true">
+      <button class="detail-close" aria-label="关闭">✕</button>
+      <div class="detail-head">
+        <div class="detail-kicker">会议 AI 听 · 设计与我的贡献</div>
+        <h3 class="detail-title">两处关键设计：<em>图文纪要</em> &amp; <em>小微悬浮胶囊</em></h3>
+        <div class="detail-tabs">
+          <button class="dt active" data-page="0">① 图文纪要</button>
+          <button class="dt" data-page="1">② 小微 → 悬浮胶囊</button>
+        </div>
+      </div>
+      <div class="detail-body">
+        <!-- 第 1 页：图文纪要 -->
+        <section class="detail-page active" data-page="0">
+          <div class="dcard">
+            <div class="dh">设计目标</div>
+            <p class="dbig">从<b>纯文本纪要</b> → <b>图文纪要</b>，让会议结论可视化、更直观、可扫读。</p>
+          </div>
+          <div class="dgrid2">
+            <div class="dcard">
+              <div class="dh">改动前</div>
+              <p>大段纯文字纪要，信息平铺、重点不突出，读完一场长会成本高、不愿回看。</p>
+            </div>
+            <div class="dcard">
+              <div class="dh">改动后</div>
+              <p>按议题分段，把结论 / 决策 / 待办组织成<b>图文要点卡片</b>，配图示与缩略图，随议题动态更新，一眼读懂。</p>
+            </div>
+          </div>
+          <div class="dcard dnote-card">
+            <div class="dh">我的贡献</div>
+            <p class="dbig" style="color:var(--muted)">（这部分你上次没展开，先放一版我的推断，你确认/补充：）</p>
+            <ul class="dlist">
+              <li>定义「图文要点」的信息结构与卡片样式，把转写结论翻译成可视化模块。</li>
+              <li>设计图文要点随<b>议题分段</b>动态更新的交互，让纪要与时间轴联动。</li>
+            </ul>
+          </div>
+        </section>
+
+        <!-- 第 2 页：小微 → 悬浮胶囊 -->
+        <section class="detail-page" data-page="1">
+          <div class="dcard">
+            <div class="dh">改动背景</div>
+            <ul class="dlist">
+              <li>很多人不用「小微」——能力差，改动前入口就只是侧边栏里「小微助手」四个字。</li>
+              <li>2–3 月数据发现用户其实<b>用得很多</b>，于是赶紧做能力升级。</li>
+            </ul>
+          </div>
+          <div class="dgrid2">
+            <div class="dcard">
+              <div class="dh">遇到的问题</div>
+              <ol class="dlist dnum">
+                <li>用户不信任小微，习惯<b>关闭侧边栏</b> → 新功能上线后用户<b>无感知</b>。</li>
+                <li>到底先上<b>什么问答能力</b>？</li>
+              </ol>
+            </div>
+            <div class="dcard">
+              <div class="dh">我的解法</div>
+              <div class="drow"><span class="dtag">解决无感知</span><p>入口从侧边栏改成<b>顶部悬浮胶囊</b>，并用<b>轮播</b>把关键内容/新能力滚动曝光在用户眼前。</p></div>
+              <div class="drow"><span class="dtag">先上什么</span><p>做<b>数据分析</b>，归纳出 3 类 Top 高频诉求，优先上线这三个。</p></div>
+            </div>
+          </div>
+          <div class="dcard">
+            <div class="dh">数据分析 → 首批上线的 3 类问答</div>
+            <div class="dstats" style="grid-template-columns:repeat(3,1fr)">
+              <div class="dstat"><b>知识类</b><span>知识类问答</span></div>
+              <div class="dstat"><b>找某人</b><span>问与某人相关的总结</span></div>
+              <div class="dstat"><b>找我的</b><span>问与我相关的任务</span></div>
+            </div>
+          </div>
+        </section>
+      </div>
+      <div class="detail-foot">
+        <button class="dnav dprev">← 上一页</button>
+        <div class="ddots"><span class="dd active"></span><span class="dd"></span></div>
+        <button class="dnav dnext">下一页 →</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ===== 项目区块：AI 翻译 ===== -->
+  <section class="project-section" id="ai-translation">
+    <div class="project-inner">
+      <!-- 左：电子屏直接进入「翻译」页（无控制器、无屏幕形态切换） -->
+      <div class="demo-col">
+        <div class="demo-viewport bare" data-base="1984" style="aspect-ratio:1984/1144;">
+          <iframe id="transFrame" src="demos/meeting-room/index.html?view=translation"
+                  style="width:1984px;height:1144px;background:transparent;"
+                  title="AI 翻译大屏 Demo" loading="lazy"></iframe>
+          <button class="demo-fs-btn" title="全屏体验" aria-label="全屏">
+            <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M8 3H5a2 2 0 0 0-2 2v3m18 0V5a2 2 0 0 0-2-2h-3M8 21H5a2 2 0 0 1-2-2v-3m18 0v3a2 2 0 0 1-2 2h-3"/></svg>
+          </button>
+        </div>
+        <!-- 控制器：翻译场景一键预览（不带 data-target，避免被通用控制器接管） -->
+        <div class="mr-controller trans-ctl" data-frame="transFrame">
+          <div class="mrc-modes">
+            <button data-preset="reset" class="active">全屏翻译</button>
+            <button data-preset="home">回到首页</button>
+            <button data-preset="meeting">会中看翻译</button>
+            <button data-preset="share">共享中看翻译</button>
+          </div>
+        </div>
+      </div>
+
+      <!-- 右：文字介绍 -->
+      <div class="text-col">
+        <div class="proj-top">
+          <span class="eyebrow">PROJECT 04 · 智感</span>
+          <span class="proj-status s-gray">已灰度</span>
+        </div>
+        <h2 class="proj-title">大屏 AI 翻译</h2>
+        <p class="proj-lead">
+          投屏/书写时，字幕条嵌入画面，边写、边看、边翻译，互不干扰
+        </p>
+        <ul class="proj-points">
+          <li><b>嵌入式字幕条</b> —— 翻译不再覆盖共享材料，开会、投屏、看字幕同屏并行</li>
+          <li><b>全屏↔字幕条切换</b> —— 两种模式之间有过渡动效，场景转换不割裂</li>
+        </ul>
+        <div class="proj-tags">
+          <span>实时翻译</span><span>双语字幕</span><span>跨语言会议</span><span>大屏交互</span>
+        </div>
+      </div>
+    </div>
+  </section>
+
+
   <!-- ===== 项目区块：智能画面布局 ===== -->
   <section class="project-section" id="layout">
     <div class="project-inner">
@@ -1276,17 +1282,16 @@
       <div class="text-col">
         <div class="proj-top">
           <span class="eyebrow">PROJECT 05 · 智感</span>
-          <span class="proj-status s-live">已上线</span>
+          <span class="proj-status s-gray">已灰度</span>
         </div>
         <h2 class="proj-title">会议智能画面视图</h2>
         <p class="proj-lead">
-          参会人数一变，发言人区与观众席自动重排——大屏始终把当前发言人放在 C 位。
+          从「不知道谁在发言」，到「发言人始终在 C 位」的智感体验
         </p>
-        <p class="proj-body">
-          会议室大屏的视频画面布局：随参会人数动态调整发言人区与观众区的排布，
-          发言人居中放大、观众席自动分排，超出容量时折叠为「共 N 人」。
-          用左下角控制器调人数、发言人数与辅助区域，大屏即时重排。
-        </p>
+        <ul class="proj-points">
+          <li><b>舞台区 + 观众区</b> —— 发言人大框居顶，其余参会人自动排列，主次关系清楚</li>
+          <li><b>多场景自适应</b> —— 人多人少、单人或双人发言，布局自动适配</li>
+        </ul>
         <div class="proj-tags">
           <span>画面布局</span><span>自动排版</span><span>发言人优先</span><span>交互原型</span>
         </div>
@@ -1339,12 +1344,11 @@
         </div>
         <h2 class="proj-title">会议大屏稳定性治理</h2>
         <p class="proj-lead">
-          把"这间会议室到底能不能用"，变成可量化、可治理、可预警的运营指标。
+          从「被动等投诉」，到「先于用户发现问题」的治理体系
         </p>
-        <p class="proj-body">
-          建立统一的异常分级体系与一屏统览的治理看板。用左下角控制器实时注入各类异常，
-          大屏即时联动——让运维从"被动救火"转向"主动治理"。
-        </p>
+        <ul class="proj-points">
+          <li><b>分级提醒设计</b> —— 阻断类明显告知，非阻断类极轻提示，在干扰和告知之间找到平衡</li>
+        </ul>
         <div class="proj-tags">
           <span>稳定性治理</span><span>异常分级</span><span>治理看板</span><span>交互原型</span>
         </div>
@@ -1806,22 +1810,71 @@
       });
     })();
 
-    /* ===== eShare 控制器：切换识别到的投影码数量 0/1/2/3 ===== */
+    /* ===== eShare 控制器：版本切换 + 投影码数量 ===== */
     (function () {
       const ctl = document.querySelector('.eshare-ctl');
       const frame = document.getElementById('eshareFrame');
       if (!ctl || !frame) return;
-      const send = m => {
+
+      let currentVersion = 3;
+      let currentCount = 2;
+      const MAX_COUNT = 3;
+      const MIN_COUNT = 0;
+
+      const sendVersion = v => {
+        try { frame.contentWindow.postMessage({ target: 'eshare', type: 'setVersion', value: v }, '*'); } catch (e) {}
+      };
+      const sendCount = m => {
         try { frame.contentWindow.postMessage({ target: 'eshare', type: 'setMode', value: m }, '*'); } catch (e) {}
       };
-      ctl.querySelectorAll('.mrc-modes button').forEach(b => {
-        b.addEventListener('click', () => {
-          ctl.querySelectorAll('.mrc-modes button').forEach(x => x.classList.remove('active'));
-          b.classList.add('active');
-          send(parseInt(b.dataset.count));
+      const hideController = () => {
+        try { frame.contentWindow.postMessage({ target: 'eshare', type: 'showController', value: false }, '*'); } catch (e) {}
+      };
+
+      const countGroup = document.getElementById('eshareCountGroup');
+      const countVal   = document.getElementById('eshareCountVal');
+      const minusBtn   = document.getElementById('eshareCountMinus');
+      const plusBtn    = document.getElementById('eshareCountPlus');
+
+      function updateCountVisibility() {
+        const show = currentVersion !== 1;
+        if (countGroup) countGroup.classList.toggle('eshare-hidden', !show);
+      }
+
+      function updateCountButtons() {
+        if (minusBtn) minusBtn.disabled = currentCount <= MIN_COUNT;
+        if (plusBtn)  plusBtn.disabled  = currentCount >= MAX_COUNT;
+        if (countVal) countVal.textContent = currentCount;
+      }
+
+      ctl.querySelectorAll('[data-version]').forEach(btn => {
+        btn.addEventListener('click', () => {
+          currentVersion = parseInt(btn.dataset.version);
+          ctl.querySelectorAll('[data-version]').forEach(b => b.classList.toggle('active', b === btn));
+          sendVersion(currentVersion);
+          updateCountVisibility();
+          if (currentVersion !== 1) sendCount(currentCount);
         });
       });
-      frame.addEventListener('load', () => send(0));
+
+      if (minusBtn) minusBtn.addEventListener('click', () => {
+        if (currentCount > MIN_COUNT) { currentCount--; updateCountButtons(); sendCount(currentCount); }
+      });
+      if (plusBtn) plusBtn.addEventListener('click', () => {
+        if (currentCount < MAX_COUNT) { currentCount++; updateCountButtons(); sendCount(currentCount); }
+      });
+
+      function init() {
+        hideController();
+        sendVersion(currentVersion);
+        sendCount(currentCount);
+        updateCountVisibility();
+        updateCountButtons();
+      }
+
+      frame.addEventListener('load', init);
+      setTimeout(init, 800);
+      setTimeout(init, 2200);
     })();
 
     /* ===== 会议稳定性治理：隐藏大屏左下角 AI 入口（仅 mrFrame，不影响检测异常面板/AI翻译） ===== */

@@ -538,6 +538,7 @@
 
   /* ── Version 3: subtitle ── */
   function v3UpdateSubtitle(){
+    v2swapEl.classList.remove('show');
     if(mode===0){ subtitle.innerHTML=''; return; }
     if(mode===1){ subtitle.innerHTML=`已自动识别您处在 <b>${CODES[0].room}</b> 会议室`; return; }
     if(selectedCode){
