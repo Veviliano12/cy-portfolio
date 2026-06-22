@@ -113,7 +113,7 @@
       flex-direction: column;
       justify-content: center;
       padding: 0 40px;
-      max-width: 900px;
+      max-width: 1180px;
     }
     /* TextPressure 标题：可变字体 + 鼠标挤压动效 */
     .pressure-wrap {
@@ -122,7 +122,7 @@
     }
     .pressure-title {
       font-family: "Roboto Flex", sans-serif;
-      font-size: clamp(72px, 13.5vw, 188px);
+      font-size: clamp(84px, 15.5vw, 240px);
       color: var(--lime);
       text-shadow: 0 0 55px rgba(37,216,255,.4);
       margin: 0;
@@ -144,7 +144,7 @@
     .hero-sub {
       margin-top: 4px;
       font-family: "Roboto Flex", sans-serif;
-      font-size: clamp(44px, 8.5vw, 116px);
+      font-size: clamp(52px, 10vw, 150px);
       font-weight: 800;
       line-height: 1;
       letter-spacing: .06em;
@@ -153,6 +153,34 @@
       -webkit-text-stroke: 1.5px rgba(244,246,238,.9);
       user-select: none;
     }
+    /* ===== 竖屏引导蒙版：检测到手机竖屏时盖住全站，提示横屏 ===== */
+    .rotate-mask {
+      position: fixed; inset: 0; z-index: 99998;
+      display: none;
+      flex-direction: column; align-items: center; justify-content: center;
+      gap: 30px; padding: 40px; text-align: center;
+      background: rgba(8,11,16,.94);
+      backdrop-filter: blur(12px); -webkit-backdrop-filter: blur(12px);
+    }
+    /* 仅当 body 标记需要时显示（JS 按竖屏+触屏切换） */
+    body.show-rotate .rotate-mask { display: flex; }
+    /* 手机横屏旋转图标动效：竖→横来回提示 */
+    .rotate-phone {
+      width: 76px; height: 76px;
+      animation: phoneRotate 2.6s cubic-bezier(.65,0,.35,1) infinite;
+      transform-origin: 50% 50%;
+      filter: drop-shadow(0 0 14px rgba(37,216,255,.5));
+    }
+    @keyframes phoneRotate {
+      0%, 22%   { transform: rotate(0deg); }
+      50%, 72%  { transform: rotate(-90deg); }
+      100%      { transform: rotate(-90deg); }
+    }
+    .rotate-text {
+      font-size: clamp(17px, 5vw, 22px);
+      font-weight: 700; letter-spacing: 1px; color: var(--text);
+    }
+    .rotate-sub { margin-top: -16px; font-size: 13.5px; color: var(--muted); letter-spacing: .5px; }
     .hero p {
       margin-top: 26px;
       font-size: clamp(15px, 1.6vw, 19px);
@@ -185,7 +213,8 @@
       animation: marquee 38s linear infinite;
     }
     /* eShare：竖向长方形卡，高度与其它卡一致（横向变窄、按截图比例） */
-    .card.card-portrait { width: auto; height: var(--card-h); aspect-ratio: 43 / 70; }
+    /* eShare 竖卡：比其它卡更高更醒目，宽度按比例增大，便于看清内容 */
+    .card.card-portrait { width: auto; height: calc(var(--card-h) * 1.28); aspect-ratio: 50 / 70; }
     .cards-rail:hover .cards-track { animation-play-state: paused; }
     @keyframes marquee {
       from { transform: translateX(0); }
@@ -350,17 +379,24 @@
       position: relative;
       z-index: 6;
       background: linear-gradient(180deg, #0d0f0a 0%, #0f1418 100%);
-      padding: 100px 40px 120px;
+      /* 每个项目占满一屏：垂直居中其内容 */
+      min-height: 100vh;
+      display: flex;
+      align-items: center;
+      padding: 56px 30px;
     }
     .project-section.alt {
       background: linear-gradient(180deg, #0f1418 0%, #0c1116 100%);
     }
     .project-inner {
-      max-width: 1240px;
+      width: 100%;
+      /* 文字列保持舒适宽度(不被挤窄)，demo 列吃掉剩余空间——
+         标准屏不拥挤、宽屏 demo 自动变大铺满 */
+      max-width: 1760px;
       margin: 0 auto;
       display: grid;
-      grid-template-columns: 1.15fr .85fr;
-      gap: 56px;
+      grid-template-columns: minmax(0, 1fr) clamp(400px, 30vw, 480px);
+      gap: 52px;
       align-items: center;
     }
 
@@ -418,7 +454,7 @@
       margin-bottom: 16px;
     }
     .proj-title {
-      font-size: clamp(34px, 4vw, 52px);
+      font-size: clamp(30px, 3.3vw, 46px);
       font-weight: 800;
       line-height: 1.1;
       color: var(--text);
@@ -732,6 +768,18 @@
       <div id="pwErr" style="height:18px;margin-top:10px;font-size:13px;color:#ff6b6b;opacity:0;transition:opacity .2s;">口令不对，再试试</div>
     </div>
   </div>
+
+  <!-- ===== 竖屏引导蒙版（手机竖屏时提示横屏，横屏后自动消失）===== -->
+  <div id="rotateMask" class="rotate-mask" aria-hidden="true">
+    <svg class="rotate-phone" viewBox="0 0 76 76" xmlns="http://www.w3.org/2000/svg" fill="none">
+      <rect x="24" y="6" width="28" height="64" rx="7" stroke="#25d8ff" stroke-width="3"/>
+      <rect x="30" y="15" width="16" height="42" rx="2" fill="rgba(37,216,255,.18)"/>
+      <circle cx="38" cy="63" r="2.6" fill="#25d8ff"/>
+    </svg>
+    <div class="rotate-text">横屏查看效果更佳</div>
+    <div class="rotate-sub">转动手机即可全屏体验</div>
+  </div>
+
   <script>
     (function () {
       var KEY = 'cy_portfolio_ok', PASS = 'MjAyNjA2MjI='; // base64('20260622')
@@ -753,6 +801,20 @@
       btn.addEventListener('click', tryPass);
       inp.addEventListener('keydown', function (e) { if (e.key === 'Enter') tryPass(); });
       setTimeout(function () { inp.focus(); }, 100);
+    })();
+
+    /* 竖屏引导蒙版：仅触屏设备在竖屏时显示，横屏自动消失 */
+    (function () {
+      var isTouch = window.matchMedia('(pointer: coarse)').matches || ('ontouchstart' in window);
+      function isPortrait() { return window.matchMedia('(orientation: portrait)').matches; }
+      function update() {
+        document.body.classList.toggle('show-rotate', isTouch && isPortrait());
+      }
+      ['resize', 'orientationchange'].forEach(function (ev) { window.addEventListener(ev, update); });
+      var mq = window.matchMedia('(orientation: portrait)');
+      if (mq.addEventListener) mq.addEventListener('change', update);
+      else if (mq.addListener) mq.addListener(update);
+      update();
     })();
   </script>
 
@@ -1797,6 +1859,108 @@
           const ov = document.getElementById(btn.getAttribute('data-detail'));
           if (ov) { ov.classList.add('on'); document.body.style.overflow = 'hidden'; ov._show(0); }
         });
+      });
+    })();
+  </script>
+
+  <!-- ===== 整页滚动：一次滚轮手势翻一屏（fullPage 风格，仅桌面） ===== -->
+  <script>
+    (function () {
+      // 仅桌面（鼠标/触控板）启用；触屏手机走原生滚动
+      if (!window.matchMedia('(min-width: 901px)').matches) return;
+      if (window.matchMedia('(pointer: coarse)').matches) return;
+
+      var sections = [];
+      function collect() {
+        sections = [document.querySelector('.stage')]
+          .concat(Array.prototype.slice.call(document.querySelectorAll('.project-section')))
+          .filter(Boolean);
+      }
+      collect();
+      window.addEventListener('resize', collect);
+
+      var animating = false, lockT = null, rafId = null;
+      var DURATION = 1150;   // 翻屏动画时长（比原生更慢、更稳）
+      var SETTLE = 240;      // 落屏后的短暂停顿，避免连翻
+
+      function easeInOutCubic(t) {
+        return t < 0.5 ? 4 * t * t * t : 1 - Math.pow(-2 * t + 2, 3) / 2;
+      }
+      function animateScrollTo(targetY) {
+        if (rafId) cancelAnimationFrame(rafId);
+        var startY = window.scrollY;
+        var dist = targetY - startY;
+        if (Math.abs(dist) < 1) return;
+        var startTs = null;
+        function step(ts) {
+          if (startTs === null) startTs = ts;
+          var p = Math.min((ts - startTs) / DURATION, 1);
+          window.scrollTo(0, startY + dist * easeInOutCubic(p));
+          if (p < 1) rafId = requestAnimationFrame(step);
+          else rafId = null;
+        }
+        rafId = requestAnimationFrame(step);
+      }
+
+      // 当前停在哪一屏：以视口中线落在哪个区块为准
+      function currentIndex() {
+        var mid = window.innerHeight / 2;
+        for (var i = 0; i < sections.length; i++) {
+          var r = sections[i].getBoundingClientRect();
+          if (r.top <= mid && r.bottom > mid) return i;
+        }
+        // 兜底：取最接近视口顶的
+        var best = 0, bd = Infinity;
+        sections.forEach(function (s, i) {
+          var d = Math.abs(s.getBoundingClientRect().top);
+          if (d < bd) { bd = d; best = i; }
+        });
+        return best;
+      }
+
+      function goTo(i) {
+        i = Math.max(0, Math.min(sections.length - 1, i));
+        animating = true;
+        var targetY = sections[i].getBoundingClientRect().top + window.scrollY;
+        animateScrollTo(targetY);
+        clearTimeout(lockT);
+        // 动画结束后再加一点停顿，吸收触控板惯性、避免一次连翻多屏
+        lockT = setTimeout(function () { animating = false; }, DURATION + SETTLE);
+      }
+
+      window.addEventListener('wheel', function (e) {
+        // demo 全屏 / 详情弹窗打开时不接管
+        if (document.querySelector('.demo-viewport.expanded')) return;
+        if (document.querySelector('.detail-overlay.on')) return;
+
+        var idx = currentIndex();
+        var sec = sections[idx];
+        // 若本屏内容比视口高：先让原生滚动读完，到边界再翻屏
+        if (sec) {
+          var r = sec.getBoundingClientRect();
+          if (r.height > window.innerHeight + 4) {
+            if (e.deltaY > 0 && r.bottom > window.innerHeight + 2) return;
+            if (e.deltaY < 0 && r.top < -2) return;
+          }
+        }
+
+        e.preventDefault();
+        if (animating || Math.abs(e.deltaY) < 4) return;
+        goTo(idx + (e.deltaY > 0 ? 1 : -1));
+      }, { passive: false });
+
+      // 键盘上下 / PageUp·Down / 空格 也翻屏
+      window.addEventListener('keydown', function (e) {
+        if (document.querySelector('.demo-viewport.expanded')) return;
+        if (document.querySelector('.detail-overlay.on')) return;
+        var tag = (e.target.tagName || '').toLowerCase();
+        if (tag === 'input' || tag === 'textarea') return;
+        var down = e.key === 'ArrowDown' || e.key === 'PageDown' || (e.key === ' ' && !e.shiftKey);
+        var up = e.key === 'ArrowUp' || e.key === 'PageUp' || (e.key === ' ' && e.shiftKey);
+        if (!down && !up) return;
+        e.preventDefault();
+        if (animating) return;
+        goTo(currentIndex() + (down ? 1 : -1));
       });
     })();
   </script>
