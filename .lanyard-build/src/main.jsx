@@ -1,76 +1,146 @@
-import { StrictMode } from 'react';
+import { StrictMode, useEffect, useState } from 'react';
 import { createRoot } from 'react-dom/client';
 import Lanyard from './Lanyard.jsx';
 import './index.css';
 
-// 生成一张"工牌"正面图：深色卡 + 🌧️ emoji + 名字。
-// 用户之后会换成真实图片，这里先用 emoji 占位。
-function makeCardImage(emoji, name, sub) {
-  const W = 512;
-  const H = 768; // 竖版卡片比例
+// 把 emoji 渲染成纯白剪影（用于黑色带子上的白色图标）
+function whiteEmojiCanvas(emoji, size) {
+  const c = document.createElement('canvas');
+  c.width = size;
+  c.height = size;
+  const ctx = c.getContext('2d');
+  ctx.textAlign = 'center';
+  ctx.textBaseline = 'middle';
+  ctx.font = Math.round(size * 0.78) + 'px "Apple Color Emoji", "Segoe UI Emoji", sans-serif';
+  ctx.fillText(emoji, size / 2, size / 2);
+  // 把所有不透明像素涂成白色 → 得到白色剪影
+  ctx.globalCompositeOperation = 'source-in';
+  ctx.fillStyle = '#ffffff';
+  ctx.fillRect(0, 0, size, size);
+  ctx.globalCompositeOperation = 'source-over';
+  return c;
+}
+
+// 生成挂绳带子贴图：黑底 + 重复的白色 🌧️ 图标
+function makeBandImage() {
+  const W = 1024;
+  const H = 256;
   const c = document.createElement('canvas');
   c.width = W;
   c.height = H;
   const ctx = c.getContext('2d');
+  ctx.fillStyle = '#0b0b0d';
+  ctx.fillRect(0, 0, W, H);
+  const icon = whiteEmojiCanvas('🌧️', 200);
+  // 一个贴图块内放一个图标居中（沿带子重复后即等距排列）
+  const s = 150;
+  ctx.globalAlpha = 0.96;
+  ctx.drawImage(icon, (W - s) / 2, (H - s) / 2, s, s);
+  ctx.globalAlpha = 1;
+  return c.toDataURL('image/png');
+}
 
-  // 背景：深蓝渐变，贴合站点霓虹蓝主题
+// 卡片底图（深蓝 + 霓虹蓝光晕），正反面共用背景
+function cardBase(ctx, W, H) {
   const g = ctx.createLinearGradient(0, 0, 0, H);
   g.addColorStop(0, '#0e1b2a');
   g.addColorStop(1, '#0a1119');
   ctx.fillStyle = g;
   ctx.fillRect(0, 0, W, H);
-
-  // 顶部一抹霓虹蓝光晕
   const glow = ctx.createRadialGradient(W / 2, H * 0.34, 20, W / 2, H * 0.34, W * 0.7);
   glow.addColorStop(0, 'rgba(37,216,255,0.30)');
   glow.addColorStop(1, 'rgba(37,216,255,0)');
   ctx.fillStyle = glow;
   ctx.fillRect(0, 0, W, H);
+}
 
-  // emoji 主体
+// 正面：🌧️ + CHENYU / PORTFOLIO
+function makeFrontImage() {
+  const W = 512;
+  const H = 768;
+  const c = document.createElement('canvas');
+  c.width = W;
+  c.height = H;
+  const ctx = c.getContext('2d');
+  cardBase(ctx, W, H);
   ctx.textAlign = 'center';
   ctx.textBaseline = 'middle';
   ctx.font = '220px "Apple Color Emoji", "Segoe UI Emoji", sans-serif';
-  ctx.fillText(emoji, W / 2, H * 0.40);
-
-  // 名字
+  ctx.fillText('🌧️', W / 2, H * 0.40);
   ctx.fillStyle = '#eaf6ff';
   ctx.font = '700 64px -apple-system, "PingFang SC", Arial, sans-serif';
-  ctx.fillText(name, W / 2, H * 0.66);
-
-  // 副标题
+  ctx.fillText('CHENYU', W / 2, H * 0.66);
   ctx.fillStyle = 'rgba(37,216,255,0.9)';
   ctx.font = '600 28px -apple-system, "PingFang SC", Arial, sans-serif';
-  ctx.fillText(sub, W / 2, H * 0.74);
-
-  // 底部细条
+  ctx.fillText('PORTFOLIO', W / 2, H * 0.74);
   ctx.fillStyle = 'rgba(255,255,255,0.10)';
   ctx.fillRect(W * 0.18, H * 0.86, W * 0.64, 4);
-
   return c.toDataURL('image/png');
 }
 
-const cardImg = makeCardImage('🌧️', 'CHENYU', 'PORTFOLIO');
+// 反面：ENTP
+function makeBackImage() {
+  const W = 512;
+  const H = 768;
+  const c = document.createElement('canvas');
+  c.width = W;
+  c.height = H;
+  const ctx = c.getContext('2d');
+  cardBase(ctx, W, H);
+  ctx.textAlign = 'center';
+  ctx.textBaseline = 'middle';
+  ctx.fillStyle = '#eaf6ff';
+  ctx.font = '800 150px -apple-system, "PingFang SC", Arial, sans-serif';
+  ctx.fillText('ENTP', W / 2, H * 0.46);
+  ctx.fillStyle = 'rgba(37,216,255,0.85)';
+  ctx.font = '600 26px -apple-system, "PingFang SC", Arial, sans-serif';
+  ctx.fillText('PERSONALITY', W / 2, H * 0.56);
+  ctx.fillStyle = 'rgba(255,255,255,0.10)';
+  ctx.fillRect(W * 0.18, H * 0.7, W * 0.64, 4);
+  return c.toDataURL('image/png');
+}
 
-const rootEl = document.getElementById('root');
+const frontImg = makeFrontImage();
+const backImg = makeBackImage();
+const bandImg = makeBandImage();
 
-createRoot(rootEl).render(
-  <StrictMode>
+function App() {
+  const [shown, setShown] = useState(true);
+
+  // 监听父页发来的展开/收起指令
+  useEffect(() => {
+    function onMsg(e) {
+      const d = e.data;
+      if (d && d.target === 'lanyard' && typeof d.show === 'boolean') setShown(d.show);
+    }
+    window.addEventListener('message', onMsg);
+    return () => window.removeEventListener('message', onMsg);
+  }, []);
+
+  return (
     <Lanyard
       position={[0, 0, 20]}
       gravity={[0, -40, 0]}
       fov={20}
       transparent
-      frontImage={cardImg}
-      backImage={cardImg}
+      frontImage={frontImg}
+      backImage={backImg}
       imageFit="cover"
+      lanyardImage={bandImg}
+      shown={shown}
     />
+  );
+}
+
+const rootEl = document.getElementById('root');
+
+createRoot(rootEl).render(
+  <StrictMode>
+    <App />
   </StrictMode>
 );
 
-// 在 iframe 内嵌入时，R3F 首帧可能在容器尺寸就绪前就完成测量，导致画布停留在
-// 300x150。R3F 会响应 window 'resize'，所以多次补发 resize，确保画布贴合容器；
-// ResizeObserver 负责后续容器尺寸变化。
+// iframe 内 R3F 首帧可能测量为 0，多次补发 resize + ResizeObserver 让画布贴合容器
 function kick() {
   window.dispatchEvent(new Event('resize'));
 }
@@ -79,8 +149,7 @@ if (typeof ResizeObserver !== 'undefined') {
   new ResizeObserver(kick).observe(rootEl);
 }
 
-// 嵌入父页时：滚轮事件不会跨 iframe 冒泡到父页，导致光标停在挂绳上时整页翻屏失灵。
-// 同源下把滚轮转发给父页，让右侧挂绳区域也能正常翻屏（拖拽用的是 pointer 事件，互不影响）。
+// 滚轮不跨 iframe 冒泡，转发给父页让光标停在挂绳上时也能整页翻屏
 try {
   if (window.parent && window.parent !== window) {
     window.addEventListener(

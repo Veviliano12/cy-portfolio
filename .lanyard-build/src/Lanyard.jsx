@@ -29,7 +29,8 @@ export default function Lanyard({
   backImage = null,
   imageFit = 'cover',
   lanyardImage = null,
-  lanyardWidth = 1
+  lanyardWidth = 1,
+  shown = true
 }) {
   const [isMobile, setIsMobile] = useState(() => typeof window !== 'undefined' && window.innerWidth < 768);
 
@@ -56,6 +57,7 @@ export default function Lanyard({
             imageFit={imageFit}
             lanyardImage={lanyardImage}
             lanyardWidth={lanyardWidth}
+            shown={shown}
           />
         </Physics>
         <Environment blur={0.75}>
@@ -100,7 +102,8 @@ function Band({
   backImage = null,
   imageFit = 'cover',
   lanyardImage = null,
-  lanyardWidth = 1
+  lanyardWidth = 1,
+  shown = true
 }) {
   const band = useRef(),
     fixed = useRef(),
@@ -168,6 +171,12 @@ function Band({
   const [dragged, drag] = useState(false);
   const [hovered, hover] = useState(false);
 
+  // 展开/收起：用 ref 让 useFrame 读到最新值（锚点上下移动，由绳子物理产生自然弹跳）
+  const shownRef = useRef(shown);
+  useEffect(() => {
+    shownRef.current = shown;
+  }, [shown]);
+
   useRopeJoint(fixed, j1, [[0, 0, 0], [0, 0, 0], 1]);
   useRopeJoint(j1, j2, [[0, 0, 0], [0, 0, 0], 1]);
   useRopeJoint(j2, j3, [[0, 0, 0], [0, 0, 0], 1]);
@@ -192,6 +201,14 @@ function Band({
       card.current?.setNextKinematicTranslation({ x: vec.x - dragged.x, y: vec.y - dragged.y, z: vec.z - dragged.z });
     }
     if (fixed.current) {
+      // 驱动锚点上下：展开时落到 y=4（正常垂下），收起时升到 y=14（移出视野上方）。
+      // 卡片始终是 dynamic，靠绳子+重力跟随锚点 → 落下/收回都是自然物理弹跳。
+      const targetY = shownRef.current ? 4 : 14;
+      const rate = shownRef.current ? 9 : 5; // 落下更快更有冲击感，收起更平缓
+      const cy = fixed.current.translation().y;
+      const ny = THREE.MathUtils.lerp(cy, targetY, Math.min(1, delta * rate));
+      fixed.current.setNextKinematicTranslation({ x: 0, y: ny, z: 0 });
+
       [j1, j2].forEach(ref => {
         if (!ref.current.lerped) ref.current.lerped = new THREE.Vector3().copy(ref.current.translation());
         const clampedDistance = Math.max(0.1, Math.min(1, ref.current.lerped.distanceTo(ref.current.translation())));
@@ -217,7 +234,7 @@ function Band({
   return (
     <>
       <group position={[0, 4, 0]}>
-        <RigidBody ref={fixed} {...segmentProps} type="fixed" />
+        <RigidBody ref={fixed} {...segmentProps} type="kinematicPosition" />
         <RigidBody position={[0.5, 0, 0]} ref={j1} {...segmentProps}>
           <BallCollider args={[0.1]} />
         </RigidBody>

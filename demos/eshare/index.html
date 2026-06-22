@@ -43,7 +43,7 @@
   .win-v1{
     width:416px;border-radius:8px;overflow:hidden;
     box-shadow:0 18px 60px rgba(20,30,60,.28);
-    display:none;flex-direction:column;
+    display:none;flex-direction:column;min-height:670px;
   }
   .win-v1.show{display:flex;}
   .v1-titlebar{
@@ -58,9 +58,9 @@
   }
   .v1-winctrls button:hover{background:rgba(255,255,255,.15);}
   .v1-body{
-    background:#fff;padding:24px 0 16px;display:flex;flex-direction:column;align-items:center;
+    background:#fff;padding:68px 0 32px;display:flex;flex-direction:column;align-items:center;flex:1;
   }
-  .v1-heading{font-size:20px;color:#111;font-weight:400;margin-bottom:20px;letter-spacing:1px;}
+  .v1-heading{font-size:20px;color:#111;font-weight:400;margin-bottom:28px;letter-spacing:1px;}
   .v1-display{
     display:flex;align-items:flex-end;gap:6px;margin-bottom:4px;padding:0 32px;
     min-width:280px;justify-content:center;
@@ -75,12 +75,12 @@
   .v1-cell.empty{color:transparent;}
   .v1-dash{font-size:28px;color:#555;padding-bottom:6px;line-height:1;align-self:flex-end;}
   .v1-keypad{
-    background:#1c3d8f;padding:18px 16px 16px;display:grid;
-    grid-template-columns:repeat(3,1fr);gap:2px;
+    background:#1c3d8f;padding:16px 16px 14px;display:grid;
+    grid-template-columns:repeat(3,1fr);gap:3px;flex-shrink:0;
   }
   .v1-key{
-    height:54px;background:#2255b0;border:none;cursor:pointer;
-    font-size:24px;color:#fff;font-weight:400;display:flex;align-items:center;
+    height:70px;background:#2255b0;border:none;cursor:pointer;
+    font-size:26px;color:#fff;font-weight:400;display:flex;align-items:center;
     justify-content:center;transition:background .1s,transform .08s;
     font-family:"PingFang SC","Microsoft YaHei",sans-serif;
     border-radius:2px;
@@ -141,16 +141,25 @@
   .win.v3.multi .subtitle{top:131px;opacity:0;}
   .win.v3.multi.balls-ready .subtitle{opacity:1;}
   /* v2 modes */
-  .win.v2.auto1 .subtitle{top:96px;opacity:1;}
-  .win.v2.auto2 .subtitle{top:96px;opacity:1;}
-  .win.v2.auto3 .subtitle{top:96px;opacity:1;}
-  .subtitle b{color:var(--blue);font-weight:700;font-size:18px;margin:0 3px;}
-  .subtitle .swap{
-    color:var(--blue);font-size:14px;cursor:pointer;
-    border-bottom:1px solid transparent;transition:border-color .15s;margin-left:4px;
-    white-space:nowrap;
+  .win.v2.auto1 .subtitle{top:80px;opacity:1;}
+  .win.v2.auto2 .subtitle{top:80px;opacity:1;}
+  .win.v2.auto3 .subtitle{top:80px;opacity:1;}
+  /* v2 inputbox raised + no ripple */
+  .win.v2 .inputbox{top:108px;}
+  .win.v2 .ripple{animation:none;opacity:0;}
+  /* v2 swap row below inputbox */
+  .v2swap{
+    position:absolute;left:0;right:0;top:244px;text-align:center;
+    font-size:15px;color:#888;opacity:0;pointer-events:none;
+    transition:opacity .3s;z-index:2;
   }
-  .subtitle .swap:hover{border-bottom-color:var(--blue);}
+  .v2swap.show{opacity:1;pointer-events:auto;}
+  .v2swap .swaplink{
+    color:var(--blue);cursor:pointer;font-weight:500;
+    border-bottom:1px solid transparent;transition:border-color .15s;
+  }
+  .v2swap .swaplink:hover{border-bottom-color:var(--blue);}
+  .subtitle b{color:var(--blue);font-weight:700;font-size:18px;margin:0 3px;}
 
   /* balls */
   .balls{position:absolute;top:10px;left:0;right:0;display:flex;justify-content:center;align-items:flex-start;gap:42px;z-index:1;}
@@ -358,6 +367,7 @@
     <div class="title">投影</div>
     <div class="balls" id="balls"></div>
     <div class="subtitle" id="subtitle"></div>
+    <div class="v2swap" id="v2swap">识别不准？<span class="swaplink" id="swapLink">换一个</span></div>
     <div class="inputbox" id="inputbox">
       <div class="face">
         <span class="cell"></span><span class="cell"></span><span class="cell"></span>
@@ -494,26 +504,31 @@
   function updateButton(){ project.classList.toggle('on', currentDigits().length===6); }
 
   /* ── Version 2: subtitle with swap ── */
+  const v2swapEl = document.getElementById('v2swap');
+
   function v2UpdateSubtitle(){
-    if(mode === 0){ subtitle.innerHTML=''; return; }
+    if(mode === 0){ subtitle.innerHTML=''; v2swapEl.classList.remove('show'); return; }
     const pool = CODES.slice(0, mode);
     const c = pool[v2SwapIndex % pool.length];
     if(mode === 1){
       subtitle.innerHTML = `已自动识别您处在 <b>${c.room}</b> 会议室`;
+      v2swapEl.classList.remove('show');
     } else {
-      subtitle.innerHTML = `识别您处在 <b>${c.room}</b> 会议室 <span class="swap">识别不准？换一个</span>`;
-      subtitle.querySelector('.swap').addEventListener('click', ()=>{
-        v2SwapIndex = (v2SwapIndex + 1) % pool.length;
-        const nc = pool[v2SwapIndex];
-        selectedCode = nc.code.replace('-','');
-        selectedCode = nc.code; // keep with dash for display mapping
-        typedValue = '';
-        renderV2Input(nc);
-        v2UpdateSubtitle();
-        updateButton();
-      });
+      subtitle.innerHTML = `识别您处在 <b>${c.room}</b> 会议室`;
+      v2swapEl.classList.add('show');
     }
   }
+
+  document.getElementById('swapLink').addEventListener('click', ()=>{
+    if(currentVersion !== 2) return;
+    const pool = CODES.slice(0, mode);
+    v2SwapIndex = (v2SwapIndex + 1) % pool.length;
+    const nc = pool[v2SwapIndex];
+    selectedCode = nc.code; typedValue = '';
+    renderV2Input(nc);
+    v2UpdateSubtitle();
+    updateButton();
+  });
 
   function renderV2Input(c){
     selectedCode = c.code;
