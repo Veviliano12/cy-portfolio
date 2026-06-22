@@ -70,11 +70,16 @@
       height: calc(100% - 150px);   /* 底部留给悬浮卡片，避免遮挡 */
       border: 0;
       background: transparent;
-      z-index: 3;                    /* 在背景之上、文字/卡片之下：只占右侧空白、不挡左侧标题 */
+      z-index: 4;                    /* 与卡片同层、在背景之上 */
+      transition: opacity .45s ease;
     }
+    /* 收起态：淡出并放弃指针事件 */
+    .lanyard-frame.lan-hidden { opacity: 0; pointer-events: none; }
     @media (max-width: 900px) {
       .lanyard-frame { display: none; }   /* 移动端竖屏不显示，保持简洁 */
     }
+    /* 首屏标题/副标题不拦截指针，避免压住右侧工牌导致无法拖拽（标题本身不可点） */
+    .hero { pointer-events: none; }
 
     /* ===== 顶部导航 ===== */
     .nav {
@@ -137,7 +142,7 @@
     }
     .pressure-title {
       font-family: "Roboto Flex", sans-serif;
-      font-size: clamp(84px, 15.5vw, 240px);
+      font-size: clamp(72px, 13.5vw, 188px);
       color: var(--lime);
       text-shadow: 0 0 55px rgba(37,216,255,.4);
       margin: 0;
@@ -159,7 +164,7 @@
     .hero-sub {
       margin-top: 4px;
       font-family: "Roboto Flex", sans-serif;
-      font-size: clamp(52px, 10vw, 150px);
+      font-size: clamp(44px, 8.5vw, 116px);
       font-weight: 800;
       line-height: 1;
       letter-spacing: .06em;
@@ -187,9 +192,9 @@
       filter: drop-shadow(0 0 14px rgba(37,216,255,.5));
     }
     @keyframes phoneRotate {
-      0%, 22%   { transform: rotate(0deg); }
-      50%, 72%  { transform: rotate(-90deg); }
-      100%      { transform: rotate(-90deg); }
+      0%, 18%   { transform: rotate(0deg); }
+      40%, 60%  { transform: rotate(-90deg); }
+      82%, 100% { transform: rotate(0deg); }
     }
     .rotate-text {
       font-size: clamp(17px, 5vw, 22px);
@@ -787,9 +792,9 @@
   <!-- ===== 竖屏引导蒙版（手机竖屏时提示横屏，横屏后自动消失）===== -->
   <div id="rotateMask" class="rotate-mask" aria-hidden="true">
     <svg class="rotate-phone" viewBox="0 0 76 76" xmlns="http://www.w3.org/2000/svg" fill="none">
-      <rect x="24" y="6" width="28" height="64" rx="7" stroke="#25d8ff" stroke-width="3"/>
-      <rect x="30" y="15" width="16" height="42" rx="2" fill="rgba(37,216,255,.18)"/>
-      <circle cx="38" cy="63" r="2.6" fill="#25d8ff"/>
+      <rect x="20" y="8" width="36" height="60" rx="8" stroke="#25d8ff" stroke-width="3"/>
+      <rect x="26" y="17" width="24" height="40" rx="3" fill="rgba(37,216,255,.18)"/>
+      <rect x="31" y="62" width="14" height="3" rx="1.5" fill="#25d8ff" opacity="0.7"/>
     </svg>
     <div class="rotate-text">横屏查看效果更佳</div>
     <div class="rotate-sub">转动手机即可全屏体验</div>
@@ -841,7 +846,7 @@
     <canvas class="dotgrid-bg" id="heroDots"></canvas>
 
     <!-- 首屏右侧：可拖拽的 3D 工牌挂绳（React Bits Lanyard，已打包成独立 demo） -->
-    <iframe class="lanyard-frame" src="demos/lanyard/index.html" title="3D 工牌挂绳"></iframe>
+    <iframe id="lanyardFrame" class="lanyard-frame" src="demos/lanyard/index.html" title="3D 工牌挂绳"></iframe>
 
     <!-- 顶部导航：只留一个按钮（BorderGlow 边缘辉光动效） -->
     <nav class="nav">
@@ -1983,6 +1988,18 @@
         e.preventDefault();
         if (animating) return;
         goTo(currentIndex() + (down ? 1 : -1));
+      });
+    })();
+  </script>
+
+  <!-- ===== 顶部 CHENYU 按钮：点击展开/收起右侧工牌 ===== -->
+  <script>
+    (function () {
+      var btn = document.getElementById('glowBtn');
+      var frame = document.getElementById('lanyardFrame');
+      if (!btn || !frame) return;
+      btn.addEventListener('click', function () {
+        frame.classList.toggle('lan-hidden');
       });
     })();
   </script>

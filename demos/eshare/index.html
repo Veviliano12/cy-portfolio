@@ -21,11 +21,11 @@
   /* ===== Controller ===== */
   .controller{
     position:fixed;top:20px;left:20px;z-index:50;background:#fff;border-radius:14px;
-    padding:16px 18px;box-shadow:0 8px 30px rgba(0,0,0,.18);width:228px;
+    padding:16px 18px;box-shadow:0 8px 30px rgba(0,0,0,.18);width:232px;
   }
-  .controller h3{font-size:14px;color:#111;margin-bottom:4px;font-weight:600;}
-  .controller p{font-size:12px;color:#999;margin-bottom:12px;line-height:1.5;}
-  .ctrl-row{display:flex;flex-direction:column;gap:8px;}
+  .controller h3{font-size:13px;color:#888;margin-bottom:8px;font-weight:600;letter-spacing:.3px;text-transform:uppercase;}
+  .ctrl-row{display:flex;flex-direction:column;gap:7px;margin-bottom:14px;}
+  .ctrl-row:last-child{margin-bottom:0;}
   .ctrl-btn{
     border:1px solid #e3e6ea;background:#f7f8fa;border-radius:10px;padding:9px 12px;
     font-size:13px;color:#374151;cursor:pointer;text-align:left;transition:all .15s;
@@ -33,17 +33,79 @@
   }
   .ctrl-btn:hover{background:#eef1f5;}
   .ctrl-btn.active{background:var(--blue);color:#fff;border-color:var(--blue);}
-  .ctrl-btn .dot{width:7px;height:7px;border-radius:50%;background:#c2c7cf;}
+  .ctrl-btn .dot{width:7px;height:7px;border-radius:50%;background:#c2c7cf;flex-shrink:0;}
   .ctrl-btn.active .dot{background:#fff;}
+  .ctrl-divider{height:1px;background:#eee;margin:12px 0;}
+  .mode-panel{display:none;}
+  .mode-panel.show{display:block;}
 
-  /* ===== Window ===== */
+  /* ===== Version 1 (old style) ===== */
+  .win-v1{
+    width:416px;border-radius:8px;overflow:hidden;
+    box-shadow:0 18px 60px rgba(20,30,60,.28);
+    display:none;flex-direction:column;
+  }
+  .win-v1.show{display:flex;}
+  .v1-titlebar{
+    background:#1a50a8;height:44px;display:flex;align-items:center;
+    justify-content:space-between;padding:0 14px;flex-shrink:0;
+  }
+  .v1-logo{color:#fff;font-size:18px;font-weight:700;letter-spacing:.3px;}
+  .v1-winctrls{display:flex;gap:2px;}
+  .v1-winctrls button{
+    width:32px;height:28px;background:transparent;border:none;cursor:pointer;
+    color:rgba(255,255,255,.8);font-size:16px;border-radius:4px;display:flex;align-items:center;justify-content:center;
+  }
+  .v1-winctrls button:hover{background:rgba(255,255,255,.15);}
+  .v1-body{
+    background:#fff;padding:24px 0 16px;display:flex;flex-direction:column;align-items:center;
+  }
+  .v1-heading{font-size:20px;color:#111;font-weight:400;margin-bottom:20px;letter-spacing:1px;}
+  .v1-display{
+    display:flex;align-items:flex-end;gap:6px;margin-bottom:4px;padding:0 32px;
+    min-width:280px;justify-content:center;
+  }
+  .v1-cell{
+    width:36px;display:flex;flex-direction:column;align-items:center;
+    border-bottom:2.5px solid #1a50a8;padding-bottom:4px;
+    font-size:38px;font-weight:600;color:#1a50a8;line-height:1;min-height:48px;
+    justify-content:flex-end;font-family:"Segoe UI","Arial",sans-serif;
+    letter-spacing:0;
+  }
+  .v1-cell.empty{color:transparent;}
+  .v1-dash{font-size:28px;color:#555;padding-bottom:6px;line-height:1;align-self:flex-end;}
+  .v1-keypad{
+    background:#1c3d8f;padding:18px 16px 16px;display:grid;
+    grid-template-columns:repeat(3,1fr);gap:2px;
+  }
+  .v1-key{
+    height:54px;background:#2255b0;border:none;cursor:pointer;
+    font-size:24px;color:#fff;font-weight:400;display:flex;align-items:center;
+    justify-content:center;transition:background .1s,transform .08s;
+    font-family:"PingFang SC","Microsoft YaHei",sans-serif;
+    border-radius:2px;
+  }
+  .v1-key:hover{background:#2a62c4;}
+  .v1-key:active{background:#1a4595;transform:scale(.97);}
+  .v1-key.v1-txt{font-size:16px;}
+  .v1-key.v1-icon{font-size:20px;}
+  .v1-footer{
+    background:#fff;height:44px;display:flex;align-items:center;
+    justify-content:space-between;padding:0 16px;
+  }
+  .v1-footer-icon{width:28px;height:28px;background:#e8eaed;border-radius:4px;display:flex;align-items:center;justify-content:center;}
+  .v1-welink{color:#c0392b;font-weight:700;font-size:17px;}
+
+  /* ===== Version 2 & 3 (new style) ===== */
   .win{
     width:416px;border-radius:22px;position:relative;overflow:hidden;padding-bottom:16px;
     background:#eef3fb;
     box-shadow:0 18px 60px rgba(40,55,90,.22);
+    display:none;
   }
+  .win.show{display:block;}
 
-  /* titlebar — seamless, no divider */
+  /* titlebar */
   .titlebar{display:flex;align-items:center;justify-content:space-between;padding:14px 20px 4px;}
   .logo{font-size:22px;font-weight:700;color:#2f86e6;letter-spacing:.2px;}
   .winctrls{display:flex;align-items:center;gap:6px;color:#7e858f;}
@@ -53,9 +115,8 @@
   }
   .winctrls button:hover{background:rgba(120,140,170,.12);}
 
-  /* stage: absolute layout so the input box & title hold FIXED positions across all states */
+  /* stage */
   .stage{position:relative;height:272px;}
-  /* 软光晕波纹（同投影中那种），只取上半圆，圆心在输入框上方，向外扩散 */
   .waves{position:absolute;left:50%;top:156px;transform:translateX(-50%);width:0;height:0;pointer-events:none;z-index:0;}
   .wave{
     position:absolute;left:0;top:0;width:210px;height:210px;margin:-105px 0 0 -105px;border-radius:50%;
@@ -73,14 +134,25 @@
   .win.multi .title{opacity:0;}
   .subtitle{
     position:absolute;left:0;right:0;text-align:center;font-size:16px;color:#3f444b;
-    opacity:0;transition:opacity .3s;z-index:2;
+    opacity:0;transition:opacity .3s;z-index:2;line-height:1.6;
   }
-  .win.single .subtitle{top:96px;opacity:1;}
-  .win.multi .subtitle{top:131px;opacity:0;}
-  .win.multi.balls-ready .subtitle{opacity:1;}
+  /* v3 single */
+  .win.v3.single .subtitle{top:96px;opacity:1;}
+  .win.v3.multi .subtitle{top:131px;opacity:0;}
+  .win.v3.multi.balls-ready .subtitle{opacity:1;}
+  /* v2 modes */
+  .win.v2.auto1 .subtitle{top:96px;opacity:1;}
+  .win.v2.auto2 .subtitle{top:96px;opacity:1;}
+  .win.v2.auto3 .subtitle{top:96px;opacity:1;}
   .subtitle b{color:var(--blue);font-weight:700;font-size:18px;margin:0 3px;}
+  .subtitle .swap{
+    color:var(--blue);font-size:14px;cursor:pointer;text-decoration:none;
+    border-bottom:1px solid transparent;transition:border-color .15s;margin-left:4px;
+    white-space:nowrap;
+  }
+  .subtitle .swap:hover{border-bottom-color:var(--blue);}
 
-  /* balls (absolute -> never push the input box) — 2 / 3 balls identical size */
+  /* balls */
   .balls{position:absolute;top:10px;left:0;right:0;display:flex;justify-content:center;align-items:flex-start;gap:42px;z-index:1;}
   .balls.n3{gap:14px;}
   .ball{cursor:pointer;opacity:1;transition:opacity .45s, transform .45s cubic-bezier(.22,1,.36,1);}
@@ -133,7 +205,7 @@
   .dash::before{content:'';width:15px;height:6px;border-radius:3px;background:#cfd3d8;transition:background .2s;}
   .dash.on::before{background:var(--blue);}
 
-  /* keypad: white rounded keys with soft shadow — small & refined */
+  /* keypad */
   .keypad{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;padding:4px 44px 0;}
   .key{
     height:46px;border-radius:17px;background:#ffffff;display:flex;align-items:center;
@@ -145,7 +217,7 @@
   .key.txt{font-size:18px;}
   .key.icon svg{stroke:#9097a0;}
 
-  /* extend (below keypad) */
+  /* extend */
   .extend{display:flex;align-items:center;justify-content:center;gap:8px;margin-top:12px;font-size:15px;color:#566070;}
   .extend .box{width:15px;height:15px;border:1.5px solid #aeb4bd;border-radius:3px;}
   .extend .q{width:16px;height:16px;border-radius:50%;border:1px solid #b9bfc7;font-size:11px;color:#9aa0a8;display:flex;align-items:center;justify-content:center;}
@@ -167,7 +239,7 @@
   .footer .sep{width:1px;height:16px;background:#d7dade;}
   .footer .welink{color:#c0392b;font-weight:700;font-size:17px;}
 
-  /* ===== Projecting screen ===== */
+  /* Projecting screen */
   .projecting{
     position:absolute;inset:0;border-radius:22px;display:flex;flex-direction:column;
     background:linear-gradient(180deg,#e9f0fa 0%,#f3f7fc 26%,#f9fbfe 100%);
@@ -203,17 +275,75 @@
 </head>
 <body>
 
-<div class="controller" style="display:none;">
-  <h3>投影码控制器</h3>
-  <p>切换识别到的投影码数量，观察动效</p>
+<!-- ===== Controller ===== -->
+<div class="controller" id="controller" style="display:none">
+  <h3>版本切换</h3>
   <div class="ctrl-row">
-    <button class="ctrl-btn active" data-mode="0"><span class="dot"></span>初始状态（图1）</button>
-    <button class="ctrl-btn" data-mode="1"><span class="dot"></span>识别到 1 个（图2）</button>
-    <button class="ctrl-btn" data-mode="2"><span class="dot"></span>识别到 2 个（图3-5）</button>
-    <button class="ctrl-btn" data-mode="3"><span class="dot"></span>识别到 3 个</button>
+    <button class="ctrl-btn" data-ver="1"><span class="dot"></span>版本1·旧款 UI</button>
+    <button class="ctrl-btn" data-ver="2"><span class="dot"></span>版本2·简洁识别</button>
+    <button class="ctrl-btn active" data-ver="3"><span class="dot"></span>版本3·球形选择</button>
+  </div>
+
+  <div class="ctrl-divider"></div>
+
+  <div class="mode-panel" id="modePanel">
+    <h3>模拟识别码数量</h3>
+    <div class="ctrl-row">
+      <button class="ctrl-btn active" data-mode="0"><span class="dot"></span>0 个（初始）</button>
+      <button class="ctrl-btn" data-mode="1"><span class="dot"></span>识别到 1 个</button>
+      <button class="ctrl-btn" data-mode="2"><span class="dot"></span>识别到 2 个</button>
+      <button class="ctrl-btn" data-mode="3"><span class="dot"></span>识别到 3 个</button>
+    </div>
   </div>
 </div>
 
+<!-- ===== Version 1 (old style) ===== -->
+<div class="win-v1" id="winV1">
+  <div class="v1-titlebar">
+    <span class="v1-logo">eShare</span>
+    <div class="v1-winctrls">
+      <button>—</button>
+      <button>✕</button>
+    </div>
+  </div>
+  <div class="v1-body">
+    <div class="v1-heading">输入投影码</div>
+    <div class="v1-display" id="v1display">
+      <span class="v1-cell empty" id="v1c0"></span>
+      <span class="v1-cell empty" id="v1c1"></span>
+      <span class="v1-cell empty" id="v1c2"></span>
+      <span class="v1-dash">—</span>
+      <span class="v1-cell empty" id="v1c3"></span>
+      <span class="v1-cell empty" id="v1c4"></span>
+      <span class="v1-cell empty" id="v1c5"></span>
+    </div>
+  </div>
+  <div class="v1-keypad" id="v1keypad">
+    <button class="v1-key" data-k="1">1</button>
+    <button class="v1-key" data-k="2">2</button>
+    <button class="v1-key" data-k="3">3</button>
+    <button class="v1-key" data-k="4">4</button>
+    <button class="v1-key" data-k="5">5</button>
+    <button class="v1-key" data-k="6">6</button>
+    <button class="v1-key" data-k="7">7</button>
+    <button class="v1-key" data-k="8">8</button>
+    <button class="v1-key" data-k="9">9</button>
+    <button class="v1-key v1-icon" data-k="back">⌫</button>
+    <button class="v1-key" data-k="0">0</button>
+    <button class="v1-key v1-txt" data-k="clear">清除</button>
+  </div>
+  <div class="v1-footer">
+    <div class="v1-footer-icon">
+      <svg viewBox="0 0 20 20" width="16" height="16" fill="none" stroke="#888" stroke-width="1.5">
+        <circle cx="10" cy="10" r="2.5"/>
+        <path d="M16 13.5a1.4 1.4 0 0 0 .28 1.54l.05.05a1.7 1.7 0 1 1-2.4 2.4l-.05-.05a1.4 1.4 0 0 0-1.54-.28 1.4 1.4 0 0 0-.84 1.28V18a1.7 1.7 0 0 1-3.4 0v-.08A1.4 1.4 0 0 0 7.18 16.6a1.4 1.4 0 0 0-1.54.28l-.05.05a1.7 1.7 0 1 1-2.4-2.4l.05-.05a1.4 1.4 0 0 0 .28-1.54A1.4 1.4 0 0 0 2.24 12H2a1.7 1.7 0 0 1 0-3.4h.07A1.4 1.4 0 0 0 3.4 7.18a1.4 1.4 0 0 0-.28-1.54l-.05-.05a1.7 1.7 0 1 1 2.4-2.4l.05.05a1.4 1.4 0 0 0 1.54.28H7a1.4 1.4 0 0 0 .84-1.28V2a1.7 1.7 0 0 1 3.4 0v.07a1.4 1.4 0 0 0 .85 1.28 1.4 1.4 0 0 0 1.54-.28l.05-.05a1.7 1.7 0 1 1 2.4 2.4l-.05.05a1.4 1.4 0 0 0-.28 1.54V9a1.4 1.4 0 0 0 1.28.85H18a1.7 1.7 0 0 1 0 3.4h-.07A1.4 1.4 0 0 0 16 13.5z"/>
+      </svg>
+    </div>
+    <span class="v1-welink">WeLink</span>
+  </div>
+</div>
+
+<!-- ===== Version 2 & 3 (new style, shared HTML) ===== -->
 <div class="win" id="win">
   <div class="titlebar">
     <div class="logo">eShare</div>
@@ -269,13 +399,13 @@
     <div class="titlebar">
       <div class="logo">eShare</div>
       <div class="winctrls">
-        <button aria-label="最小化"><svg viewBox="0 0 24 24" width="22" height="22" stroke="currentColor" stroke-width="2" fill="none"><line x1="5" y1="12" x2="19" y2="12"/></svg></button>
-        <button aria-label="关闭"><svg viewBox="0 0 24 24" width="22" height="22" stroke="currentColor" stroke-width="2" fill="none"><line x1="6" y1="6" x2="18" y2="18"/><line x1="18" y1="6" x2="6" y2="18"/></svg></button>
+        <button><svg viewBox="0 0 24 24" width="22" height="22" stroke="currentColor" stroke-width="2" fill="none"><line x1="5" y1="12" x2="19" y2="12"/></svg></button>
+        <button><svg viewBox="0 0 24 24" width="22" height="22" stroke="currentColor" stroke-width="2" fill="none"><line x1="6" y1="6" x2="18" y2="18"/><line x1="18" y1="6" x2="6" y2="18"/></svg></button>
       </div>
     </div>
     <div class="proj-title">投影中</div>
     <div class="proj-mid">
-      <div class="proj-code" id="projCode">1A05R</div>
+      <div class="proj-code" id="projCode"></div>
       <div class="laptop-wrap">
         <span class="ripple"></span><span class="ripple"></span><span class="ripple"></span>
         <div class="laptop">
@@ -283,7 +413,7 @@
         </div>
       </div>
     </div>
-    <div class="proj-extend"><span class="box"></span><span>启用扩展屏</span><span class="q" style="width:16px;height:16px;border-radius:50%;border:1px solid #c2c7cf;font-size:11px;display:inline-flex;align-items:center;justify-content:center;">?</span></div>
+    <div class="proj-extend"><span class="box"></span><span>启用扩展屏</span></div>
     <button class="disconnect" id="disconnect">断开</button>
     <div class="proj-footer">
       <div class="grp">
@@ -293,15 +423,52 @@
       </div>
       <div class="grp mid">
         <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="1.7"><circle cx="12" cy="12" r="9"/><path d="M8 14s1.5 2 4 2 4-2 4-2"/><line x1="9" y1="9.5" x2="9.01" y2="9.5"/><line x1="15" y1="9.5" x2="15.01" y2="9.5"/></svg>
-        <span class="sep" style="width:1px;height:16px;background:#d7dade;display:inline-block;"></span>
+        <span style="width:1px;height:16px;background:#d7dade;display:inline-block;"></span>
         <svg viewBox="0 0 24 24" width="20" height="20" fill="currentColor"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>
       </div>
-      <div class="welink" style="color:#c0392b;font-weight:700;font-size:17px;">Meeting</div>
+      <div style="color:#c0392b;font-weight:700;font-size:17px;">Meeting</div>
     </div>
   </div>
 </div>
 
 <script>
+  /* ── data ── */
+  const CODES = [
+    {code:'508-752', room:'4A-21R'},
+    {code:'966-826', room:'1B-08R'},
+    {code:'773-401', room:'3C-12R'},
+  ];
+
+  /* ── state ── */
+  let currentVersion = 3;  // 1 | 2 | 3
+  let mode = 0;            // 0..3 (v2/v3: how many codes detected)
+  let selectedCode = null;
+  let typedValue = '';
+  let v2SwapIndex = 0;     // version 2 swap pointer
+
+  /* ── Version 1 (old) ── */
+  const v1Cells = [0,1,2,3,4,5].map(i => document.getElementById('v1c'+i));
+  let v1Input = '';
+
+  function v1Render(){
+    const d = v1Input;
+    v1Cells.forEach((c,i) => {
+      if(d[i] !== undefined){ c.textContent = d[i]; c.classList.remove('empty'); }
+      else { c.textContent = ''; c.classList.add('empty'); }
+    });
+  }
+
+  document.getElementById('v1keypad').addEventListener('click', e => {
+    const k = e.target.closest('.v1-key');
+    if(!k) return;
+    const v = k.dataset.k;
+    if(v === 'clear'){ v1Input = ''; }
+    else if(v === 'back'){ v1Input = v1Input.slice(0,-1); }
+    else { if(v1Input.length < 6) v1Input += v; }
+    v1Render();
+  });
+
+  /* ── Version 2 & 3 shared DOM ── */
   const win = document.getElementById('win');
   const ballsEl = document.getElementById('balls');
   const subtitle = document.getElementById('subtitle');
@@ -312,24 +479,13 @@
   const projScreen = document.getElementById('projScreen');
   const projCode = document.getElementById('projCode');
 
-  const ROOM_SINGLE = '4A-21R';
-  const CODES = [
-    {code:'508-752', room:'1A05R'},
-    {code:'966-826', room:'1A05R'},
-    {code:'773-401', room:'1A05R'},
-  ];
-
-  let mode = 0;
-  let selectedCode = null;
-  let typedValue = '';
-
   const digitsOf = s => s.replace('-','');
   function currentDigits(){ return selectedCode ? digitsOf(selectedCode) : typedValue; }
 
   function renderInput(){
     const d = currentDigits();
     cells.forEach((c,i)=>{
-      if(d[i]!==undefined){ c.textContent = d[i]; c.classList.add('filled'); }
+      if(d[i]!==undefined){ c.textContent=d[i]; c.classList.add('filled'); }
       else { c.textContent=''; c.classList.remove('filled'); }
     });
     dashEl.classList.toggle('on', d.length>0);
@@ -337,9 +493,39 @@
 
   function updateButton(){ project.classList.toggle('on', currentDigits().length===6); }
 
-  function updateSubtitle(){
+  /* ── Version 2: subtitle with swap ── */
+  function v2UpdateSubtitle(){
+    if(mode === 0){ subtitle.innerHTML=''; return; }
+    const pool = CODES.slice(0, mode);
+    const c = pool[v2SwapIndex % pool.length];
+    if(mode === 1){
+      subtitle.innerHTML = `已自动识别您处在 <b>${c.room}</b> 会议室`;
+    } else {
+      subtitle.innerHTML = `识别您处在 <b>${c.room}</b> 会议室 <a class="swap" href="#">识别不准？换一个</a>`;
+      subtitle.querySelector('.swap').addEventListener('click', e=>{
+        e.preventDefault();
+        v2SwapIndex = (v2SwapIndex + 1) % pool.length;
+        const nc = pool[v2SwapIndex];
+        selectedCode = nc.code.replace('-','');
+        selectedCode = nc.code; // keep with dash for display mapping
+        typedValue = '';
+        renderV2Input(nc);
+        v2UpdateSubtitle();
+        updateButton();
+      });
+    }
+  }
+
+  function renderV2Input(c){
+    selectedCode = c.code;
+    typedValue = '';
+    renderInput();
+  }
+
+  /* ── Version 3: subtitle ── */
+  function v3UpdateSubtitle(){
     if(mode===0){ subtitle.innerHTML=''; return; }
-    if(mode===1){ subtitle.innerHTML = `已自动识别您处在 <b>${ROOM_SINGLE}</b> 会议室`; return; }
+    if(mode===1){ subtitle.innerHTML=`已自动识别您处在 <b>${CODES[0].room}</b> 会议室`; return; }
     if(selectedCode){
       const c = CODES.find(x=>x.code===selectedCode);
       subtitle.innerHTML = `识别您处在 <b>${c?c.room:''}</b> 会议室`;
@@ -348,11 +534,15 @@
     }
   }
 
+  /* ── Balls (v3 only) ── */
   function makeBall(c){
     const el = document.createElement('div');
     el.className='ball'; el.dataset.code=c.code;
-    el.innerHTML = `<div class="arc-wrap"><div class="orb"><div class="code">${c.code}</div><div class="room">${c.room}</div></div></div>`;
-    el.addEventListener('click', ()=>{ selectedCode = c.code; typedValue=''; renderBalls(); renderInput(); updateSubtitle(); updateButton(); });
+    el.innerHTML=`<div class="arc-wrap"><div class="orb"><div class="code">${c.code}</div><div class="room">${c.room}</div></div></div>`;
+    el.addEventListener('click', ()=>{
+      selectedCode=c.code; typedValue='';
+      renderBalls(); renderInput(); v3UpdateSubtitle(); updateButton();
+    });
     return el;
   }
 
@@ -360,113 +550,159 @@
     if(mode<2){ ballsEl.innerHTML=''; ballsEl.classList.remove('n3'); return; }
     const list = CODES.slice(0,mode).filter(c=>c.code!==selectedCode);
     ballsEl.classList.toggle('n3', list.length>=3);
-
     const old = new Map();
     ballsEl.querySelectorAll('.ball:not(.leaving)').forEach(el=>{ old.set(el.dataset.code, el.getBoundingClientRect()); });
     const want = list.map(c=>c.code);
     const prect = ballsEl.getBoundingClientRect();
-
     ballsEl.querySelectorAll('.ball:not(.leaving)').forEach(el=>{
       if(!want.includes(el.dataset.code)){
-        const r = old.get(el.dataset.code);
+        const r=old.get(el.dataset.code);
         el.classList.add('leaving');
-        el.style.left = (r.left - prect.left) + 'px';
-        el.style.top  = (r.top  - prect.top)  + 'px';
-        el.style.width = r.width + 'px';
-        requestAnimationFrame(()=> el.classList.add('gone'));
-        setTimeout(()=> el.remove(), 420);
+        el.style.left=(r.left-prect.left)+'px'; el.style.top=(r.top-prect.top)+'px'; el.style.width=r.width+'px';
+        requestAnimationFrame(()=>el.classList.add('gone'));
+        setTimeout(()=>el.remove(),420);
       }
     });
-
     list.forEach(c=>{
-      let el = ballsEl.querySelector(`.ball[data-code="${c.code}"]:not(.leaving)`);
-      if(!el){
-        el = makeBall(c); el.classList.add('entering');
-        ballsEl.appendChild(el);
-        requestAnimationFrame(()=> el.classList.remove('entering'));
-      } else { ballsEl.appendChild(el); }
+      let el=ballsEl.querySelector(`.ball[data-code="${c.code}"]:not(.leaving)`);
+      if(!el){ el=makeBall(c); el.classList.add('entering'); ballsEl.appendChild(el); requestAnimationFrame(()=>el.classList.remove('entering')); }
+      else ballsEl.appendChild(el);
     });
-
-    const els = list.map(c=>ballsEl.querySelector(`.ball[data-code="${c.code}"]:not(.leaving)`));
+    const els=list.map(c=>ballsEl.querySelector(`.ball[data-code="${c.code}"]:not(.leaving)`));
     els.forEach((el,i)=>{
-      let arc = '0px';
-      if(els.length===3) arc = (i===1) ? '0px' : '12px';
-      el.style.setProperty('--arc', arc);
+      el.style.setProperty('--arc', (els.length===3&&i!==1)?'12px':'0px');
     });
-
     requestAnimationFrame(()=>{
       list.forEach(c=>{
-        const el = ballsEl.querySelector(`.ball[data-code="${c.code}"]:not(.leaving)`);
-        const o = old.get(c.code);
-        if(!o) return;
-        const n = el.getBoundingClientRect();
-        const dx = o.left - n.left, dy = o.top - n.top;
-        if(dx || dy){
-          el.style.transition='none';
-          el.style.transform=`translate(${dx}px,${dy}px)`;
-          requestAnimationFrame(()=>{
-            el.style.transition='transform .45s cubic-bezier(.22,1,.36,1)';
-            el.style.transform='';
-          });
+        const el=ballsEl.querySelector(`.ball[data-code="${c.code}"]:not(.leaving)`);
+        const o=old.get(c.code); if(!o) return;
+        const n=el.getBoundingClientRect();
+        const dx=o.left-n.left, dy=o.top-n.top;
+        if(dx||dy){
+          el.style.transition='none'; el.style.transform=`translate(${dx}px,${dy}px)`;
+          requestAnimationFrame(()=>{ el.style.transition='transform .45s cubic-bezier(.22,1,.36,1)'; el.style.transform=''; });
         }
       });
     });
   }
 
+  /* ── Keypad (v2/v3) ── */
   function press(v){
     let d = currentDigits();
     if(v==='clear'){ typedValue=''; selectedCode=null; }
-    else if(v==='back'){ typedValue = d.slice(0,-1); selectedCode=null; }
-    else { if(d.length<6){ typedValue = d + v; selectedCode=null; } }
-    if(mode>=2) renderBalls();
-    renderInput(); updateSubtitle(); updateButton();
+    else if(v==='back'){ typedValue=d.slice(0,-1); selectedCode=null; }
+    else { if(d.length<6){ typedValue=d+v; selectedCode=null; } }
+    if(currentVersion===3 && mode>=2) renderBalls();
+    renderInput();
+    if(currentVersion===2) v2UpdateSubtitle();
+    else v3UpdateSubtitle();
+    updateButton();
   }
-  keypad.addEventListener('click', e=>{ const k = e.target.closest('.key'); if(!k) return; press(k.dataset.key); });
+  keypad.addEventListener('click', e=>{ const k=e.target.closest('.key'); if(!k) return; press(k.dataset.key); });
 
+  /* ── setMode (v2/v3) ── */
   let ballTimer;
   function setMode(m){
     clearTimeout(ballTimer);
-    mode=m; selectedCode=null; typedValue=(m===1)?'508752':'';
-    win.classList.remove('balls-ready');
-    win.classList.toggle('single', m===1);
-    win.classList.toggle('multi', m>=2);
+    mode=m; selectedCode=null; typedValue='';
+    v2SwapIndex=0;
+    win.classList.remove('balls-ready','single','multi','auto1','auto2','auto3','v2','v3');
+    win.classList.add(currentVersion===2?'v2':'v3');
     projScreen.classList.remove('show');
-    renderInput(); updateSubtitle(); updateButton();
-    if(m>=2){
-      // 先让输入框变小，再渐隐显示（从下到上）球球
-      ballsEl.innerHTML='';
-      ballTimer = setTimeout(()=>{ win.classList.add('balls-ready'); renderBalls(); }, 400);
+    renderInput(); updateButton();
+
+    if(currentVersion===2){
+      // Version 2: no balls, direct fill
+      ballsEl.innerHTML=''; ballsEl.classList.remove('n3');
+      if(m===0){
+        subtitle.innerHTML='';
+      } else {
+        const pool = CODES.slice(0, m);
+        const c = pool[0];
+        renderV2Input(c);
+        updateButton();
+        win.classList.add('auto'+m);
+        v2UpdateSubtitle();
+      }
     } else {
-      renderBalls();
+      // Version 3: original ball logic
+      win.classList.toggle('single', m===1);
+      win.classList.toggle('multi', m>=2);
+      if(m===1){ typedValue='508752'; renderInput(); }
+      v3UpdateSubtitle(); updateButton();
+      if(m>=2){
+        ballsEl.innerHTML='';
+        ballTimer=setTimeout(()=>{ win.classList.add('balls-ready'); renderBalls(); }, 400);
+      } else {
+        renderBalls();
+      }
     }
   }
 
-  document.querySelectorAll('.ctrl-btn').forEach(btn=>{
+  /* ── Version switching ── */
+  const winV1 = document.getElementById('winV1');
+  const modePanel = document.getElementById('modePanel');
+
+  function switchVersion(v){
+    currentVersion = v;
+    document.querySelectorAll('[data-ver]').forEach(b=>b.classList.toggle('active', parseInt(b.dataset.ver)===v));
+    winV1.classList.toggle('show', v===1);
+    win.classList.toggle('show', v===2||v===3);
+    modePanel.classList.toggle('show', v===2||v===3);
+    if(v===1){
+      v1Input=''; v1Render();
+    } else {
+      setMode(mode);
+    }
+  }
+
+  /* ── Controller events ── */
+  document.querySelectorAll('[data-ver]').forEach(btn=>{
+    btn.addEventListener('click', ()=>switchVersion(parseInt(btn.dataset.ver)));
+  });
+
+  document.querySelectorAll('[data-mode]').forEach(btn=>{
     btn.addEventListener('click', ()=>{
-      document.querySelectorAll('.ctrl-btn').forEach(b=>b.classList.remove('active'));
+      document.querySelectorAll('[data-mode]').forEach(b=>b.classList.remove('active'));
       btn.classList.add('active');
       setMode(parseInt(btn.dataset.mode));
     });
   });
 
+  /* ── Project button ── */
   project.addEventListener('click', ()=>{
     if(!project.classList.contains('on')) return;
-    // 仅当有关联会议室信息（自动识别到会议室）时才显示会议室名，否则只显示球
-    if(mode===1){ projCode.style.display=''; projCode.textContent = ROOM_SINGLE; }
-    else { projCode.style.display='none'; }
+    if(currentVersion===3 && mode===1){ projCode.style.display=''; projCode.textContent=CODES[0].room; }
+    else if(currentVersion===2 && mode>=1){
+      const pool=CODES.slice(0,mode);
+      const c=pool[v2SwapIndex%pool.length];
+      projCode.style.display=''; projCode.textContent=c.room;
+    } else { projCode.style.display='none'; }
     projScreen.classList.add('show');
   });
-  document.getElementById('disconnect').addEventListener('click', ()=> projScreen.classList.remove('show'));
+  document.getElementById('disconnect').addEventListener('click', ()=>projScreen.classList.remove('show'));
 
-  window.addEventListener(`message`, function(e){
+  /* ── postMessage API (for portfolio iframe control) ── */
+  window.addEventListener('message', function(e){
     var d=e.data||{};
-    if(d && d.target===`eshare` && d.type===`setMode`){
+    if(!d || d.target!=='eshare') return;
+    if(d.type==='setMode'){
       var m=parseInt(d.value)||0;
-      document.querySelectorAll(`.ctrl-btn`).forEach(function(b){ b.classList.toggle(`active`, parseInt(b.dataset.mode)===m); });
+      document.querySelectorAll('[data-mode]').forEach(function(b){ b.classList.toggle('active', parseInt(b.dataset.mode)===m); });
       setMode(m);
     }
+    if(d.type==='setVersion'){
+      switchVersion(parseInt(d.value)||3);
+    }
+    if(d.type==='showController'){
+      document.getElementById('controller').style.display = d.value ? '' : 'none';
+    }
   });
-  setMode(0);
+
+  /* ── Init ── */
+  switchVersion(3);
+  // show controller by default (can be hidden via postMessage)
+  document.getElementById('controller').style.display = '';
 </script>
 </body>
 </html>
