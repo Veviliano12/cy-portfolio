@@ -1996,7 +1996,7 @@
       var btn = document.getElementById('glowBtn');
       var frame = document.getElementById('lanyardFrame');
       if (!btn || !frame) return;
-      var shown = true;
+      var shown = false;   /* 默认不掉落，点击后才掉落 */
       btn.addEventListener('click', function () {
         shown = !shown;
         try {

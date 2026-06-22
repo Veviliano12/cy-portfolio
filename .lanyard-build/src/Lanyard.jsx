@@ -30,7 +30,8 @@ export default function Lanyard({
   imageFit = 'cover',
   lanyardImage = null,
   lanyardWidth = 1,
-  shown = true
+  shown = true,
+  dropKey = 0
 }) {
   const [isMobile, setIsMobile] = useState(() => typeof window !== 'undefined' && window.innerWidth < 768);
 
@@ -51,6 +52,7 @@ export default function Lanyard({
         <ambientLight intensity={Math.PI} />
         <Physics gravity={gravity} timeStep={isMobile ? 1 / 30 : 1 / 60}>
           <Band
+            key={dropKey}
             isMobile={isMobile}
             frontImage={frontImage}
             backImage={backImage}
@@ -231,20 +233,24 @@ function Band({
   curve.curveType = 'chordal';
   texture.wrapS = texture.wrapT = THREE.RepeatWrapping;
 
+  // 挂载时若处于收起态，整条链起始就抬到视野上方（避免初次加载闪一下卡片）。
+  // 每次"展开"会通过 key 重挂载本组件 → 以 startY=0 起步 → 卡片从锚点高度自然下落（复用页面加载的掉落效果）。
+  const startY = shown ? 0 : 10;
+
   return (
     <>
       <group position={[0, 4, 0]}>
-        <RigidBody ref={fixed} {...segmentProps} type="kinematicPosition" />
-        <RigidBody position={[0.5, 0, 0]} ref={j1} {...segmentProps}>
+        <RigidBody ref={fixed} {...segmentProps} type="kinematicPosition" position={[0, startY, 0]} />
+        <RigidBody position={[0.5, startY, 0]} ref={j1} {...segmentProps}>
           <BallCollider args={[0.1]} />
         </RigidBody>
-        <RigidBody position={[1, 0, 0]} ref={j2} {...segmentProps}>
+        <RigidBody position={[1, startY, 0]} ref={j2} {...segmentProps}>
           <BallCollider args={[0.1]} />
         </RigidBody>
-        <RigidBody position={[1.5, 0, 0]} ref={j3} {...segmentProps}>
+        <RigidBody position={[1.5, startY, 0]} ref={j3} {...segmentProps}>
           <BallCollider args={[0.1]} />
         </RigidBody>
-        <RigidBody position={[2, 0, 0]} ref={card} {...segmentProps} type={dragged ? 'kinematicPosition' : 'dynamic'}>
+        <RigidBody position={[2, startY, 0]} ref={card} {...segmentProps} type={dragged ? 'kinematicPosition' : 'dynamic'}>
           <CuboidCollider args={[0.8, 1.125, 0.01]} />
           <group
             scale={2.25}

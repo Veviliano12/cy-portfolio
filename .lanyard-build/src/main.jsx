@@ -1,27 +1,37 @@
-import { StrictMode, useEffect, useState } from 'react';
+import { StrictMode, useEffect, useRef, useState } from 'react';
 import { createRoot } from 'react-dom/client';
 import Lanyard from './Lanyard.jsx';
 import './index.css';
 
-// 把 emoji 渲染成纯白剪影（用于黑色带子上的白色图标）
-function whiteEmojiCanvas(emoji, size) {
-  const c = document.createElement('canvas');
-  c.width = size;
-  c.height = size;
-  const ctx = c.getContext('2d');
-  ctx.textAlign = 'center';
-  ctx.textBaseline = 'middle';
-  ctx.font = Math.round(size * 0.78) + 'px "Apple Color Emoji", "Segoe UI Emoji", sans-serif';
-  ctx.fillText(emoji, size / 2, size / 2);
-  // 把所有不透明像素涂成白色 → 得到白色剪影
-  ctx.globalCompositeOperation = 'source-in';
+// 画一个白色"雨云"图标：蓬松的云 + 3 滴明显分开的雨滴（比 emoji 剪影更清楚）
+function drawRainCloud(ctx, cx, cy, s) {
+  ctx.save();
   ctx.fillStyle = '#ffffff';
-  ctx.fillRect(0, 0, size, size);
-  ctx.globalCompositeOperation = 'source-over';
-  return c;
+  const cloudY = cy - s * 0.16;
+  // 云朵：几个圆叠成 + 平底
+  ctx.beginPath();
+  ctx.arc(cx - s * 0.42, cloudY + s * 0.06, s * 0.30, 0, Math.PI * 2);
+  ctx.arc(cx - s * 0.02, cloudY - s * 0.20, s * 0.40, 0, Math.PI * 2);
+  ctx.arc(cx + s * 0.45, cloudY + s * 0.03, s * 0.32, 0, Math.PI * 2);
+  ctx.arc(cx + s * 0.14, cloudY + s * 0.10, s * 0.36, 0, Math.PI * 2);
+  ctx.rect(cx - s * 0.55, cloudY + s * 0.04, s * 1.12, s * 0.30);
+  ctx.fill();
+  // 雨滴：3 滴较粗的水滴，明显分开
+  const dropTop = cloudY + s * 0.52;
+  const drop = dx => {
+    ctx.beginPath();
+    ctx.moveTo(dx, dropTop);
+    ctx.bezierCurveTo(dx + s * 0.13, dropTop + s * 0.20, dx + s * 0.11, dropTop + s * 0.38, dx, dropTop + s * 0.38);
+    ctx.bezierCurveTo(dx - s * 0.11, dropTop + s * 0.38, dx - s * 0.13, dropTop + s * 0.20, dx, dropTop);
+    ctx.fill();
+  };
+  drop(cx - s * 0.34);
+  drop(cx);
+  drop(cx + s * 0.34);
+  ctx.restore();
 }
 
-// 生成挂绳带子贴图：黑底 + 重复的白色 🌧️ 图标
+// 生成挂绳带子贴图：黑底 + 重复的白色雨云图标
 function makeBandImage() {
   const W = 1024;
   const H = 256;
@@ -31,12 +41,7 @@ function makeBandImage() {
   const ctx = c.getContext('2d');
   ctx.fillStyle = '#0b0b0d';
   ctx.fillRect(0, 0, W, H);
-  const icon = whiteEmojiCanvas('🌧️', 200);
-  // 一个贴图块内放一个图标居中（沿带子重复后即等距排列）
-  const s = 150;
-  ctx.globalAlpha = 0.96;
-  ctx.drawImage(icon, (W - s) / 2, (H - s) / 2, s, s);
-  ctx.globalAlpha = 1;
+  drawRainCloud(ctx, W / 2, H / 2, 120);
   return c.toDataURL('image/png');
 }
 
@@ -105,13 +110,20 @@ const backImg = makeBackImage();
 const bandImg = makeBandImage();
 
 function App() {
-  const [shown, setShown] = useState(true);
+  // 默认不掉落（收起在视野上方），点击顶部按钮才展开掉落
+  const [shown, setShown] = useState(false);
+  const [dropKey, setDropKey] = useState(0);
+  const shownRef = useRef(false);
 
-  // 监听父页发来的展开/收起指令
+  // 监听父页发来的展开/收起指令；每次"展开"自增 dropKey → 重挂载 → 复用页面加载的自然掉落
   useEffect(() => {
     function onMsg(e) {
       const d = e.data;
-      if (d && d.target === 'lanyard' && typeof d.show === 'boolean') setShown(d.show);
+      if (d && d.target === 'lanyard' && typeof d.show === 'boolean') {
+        if (d.show && !shownRef.current) setDropKey(k => k + 1);
+        shownRef.current = d.show;
+        setShown(d.show);
+      }
     }
     window.addEventListener('message', onMsg);
     return () => window.removeEventListener('message', onMsg);
@@ -128,6 +140,7 @@ function App() {
       imageFit="cover"
       lanyardImage={bandImg}
       shown={shown}
+      dropKey={dropKey}
     />
   );
 }
