@@ -590,6 +590,8 @@
     /* eShare 控制器：数字按钮 + 相对弹窗居中 */
     .eshare-ctl { margin-left: auto; margin-right: auto; }
     .eshare-ctl .mrc-modes button { min-width: 38px; padding: 5px 0; }
+    /* 步进按钮在任何胶囊内都强制圆形，覆盖上面的 min-width/padding */
+    .mrc-modes .mrc-step button { min-width: 0; width: 22px; height: 22px; padding: 0; }
     .eshare-divider { width: 1px; height: 18px; background: rgba(255,255,255,.2); align-self: center; margin: 0 4px; flex-shrink: 0; }
     .eshare-count-label { font-size: 12px; color: var(--muted); white-space: nowrap; padding: 0 4px; align-self: center; }
     .eshare-count-group {
