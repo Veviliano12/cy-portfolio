@@ -61,6 +61,21 @@
       pointer-events: none;
     }
 
+    /* 首屏右侧 3D 工牌挂绳：透明 iframe，盖在首屏右半区，可拖拽 */
+    .lanyard-frame {
+      position: absolute;
+      top: 0;
+      right: -2%;
+      width: 54%;
+      height: calc(100% - 150px);   /* 底部留给悬浮卡片，避免遮挡 */
+      border: 0;
+      background: transparent;
+      z-index: 3;                    /* 在背景之上、文字/卡片之下：只占右侧空白、不挡左侧标题 */
+    }
+    @media (max-width: 900px) {
+      .lanyard-frame { display: none; }   /* 移动端竖屏不显示，保持简洁 */
+    }
+
     /* ===== 顶部导航 ===== */
     .nav {
       position: relative;
@@ -824,6 +839,9 @@
     <div class="bg-vignette"></div>
     <!-- 首屏 DotGrid 点阵背景 -->
     <canvas class="dotgrid-bg" id="heroDots"></canvas>
+
+    <!-- 首屏右侧：可拖拽的 3D 工牌挂绳（React Bits Lanyard，已打包成独立 demo） -->
+    <iframe class="lanyard-frame" src="demos/lanyard/index.html" title="3D 工牌挂绳"></iframe>
 
     <!-- 顶部导航：只留一个按钮（BorderGlow 边缘辉光动效） -->
     <nav class="nav">
@@ -1923,6 +1941,10 @@
         animating = true;
         var targetY = sections[i].getBoundingClientRect().top + window.scrollY;
         animateScrollTo(targetY);
+        // 兜底：若 rAF 被节流（如后台标签）没能推进动画，到点直接落位，保证一定翻到位
+        setTimeout(function () {
+          if (Math.abs(window.scrollY - targetY) > 2) window.scrollTo(0, targetY);
+        }, DURATION + 40);
         clearTimeout(lockT);
         // 动画结束后再加一点停顿，吸收触控板惯性、避免一次连翻多屏
         lockT = setTimeout(function () { animating = false; }, DURATION + SETTLE);
