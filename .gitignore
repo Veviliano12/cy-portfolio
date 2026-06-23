@@ -4,6 +4,8 @@
 *.bak2
 *.bak3
 
-# Lanyard 构建工程：保留源码以便日后换图重新构建，只忽略依赖
+# 构建工程源码：保留源码，只忽略依赖和锁文件
 .lanyard-build/node_modules/
 .lanyard-build/package-lock.json
+.meetingroom-build/node_modules/
+.meetingroom-build/package-lock.json
