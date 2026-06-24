@@ -6,6 +6,7 @@
 <title>eShare 投影 · 交互还原 Demo</title>
 <style>
   *{margin:0;padding:0;box-sizing:border-box;}
+  html{background:transparent;}
   :root{
     --blue:#1f6fe6;
     --blue-strong:#2f6fe6;
@@ -155,10 +156,15 @@
   }
   .v2swap.show{opacity:1;pointer-events:auto;}
   .v2swap .swaplink{
-    color:var(--blue);cursor:pointer;font-weight:500;
-    border-bottom:1px solid transparent;transition:border-color .15s;
+    color:var(--blue);cursor:pointer;font-weight:500;display:inline-block;
+    border-bottom:1px solid transparent;
+    transition:border-color .2s,background .2s,padding .2s,border-radius .2s,color .2s;
   }
   .v2swap .swaplink:hover{border-bottom-color:var(--blue);}
+  .v2swap .swaplink.sim-hover{
+    background:rgba(31,111,230,.12);color:#1055c5;
+    padding:3px 10px;margin:-3px -10px;border-radius:8px;border-bottom-color:transparent;
+  }
   .subtitle b{color:var(--blue);font-weight:700;font-size:18px;margin:0 3px;}
 
   /* balls */
@@ -280,6 +286,52 @@
   .disconnect:hover{background:#d83a30;}
   .proj-footer{display:flex;align-items:center;justify-content:space-between;padding:15px 28px 18px;color:#9aa0a8;position:relative;}
   .proj-footer .grp{display:flex;align-items:center;gap:12px;}
+
+  /* ===== Version 2.2 picker overlay ===== */
+  .v22-picker{
+    position:absolute;inset:0;border-radius:22px;
+    display:flex;flex-direction:column;background:#eef3fb;
+    opacity:0;visibility:hidden;transition:opacity .25s;z-index:18;
+  }
+  .v22-picker.show{opacity:1;visibility:visible;}
+  .v22-heading{
+    text-align:center;font-size:26px;font-weight:500;color:#41464d;
+    letter-spacing:2px;margin:12px 0 6px;
+  }
+  .v22-desc{
+    text-align:center;font-size:14px;color:#9aa0a8;margin-bottom:18px;
+  }
+  .v22-list{
+    flex:1;display:flex;flex-direction:column;justify-content:center;
+    gap:10px;padding:0 28px;
+  }
+  .v22-item{
+    background:#fff;border-radius:16px;padding:16px 20px;
+    display:flex;align-items:center;cursor:pointer;
+    box-shadow:0 2px 8px rgba(40,80,160,.07);
+    transition:background .15s,box-shadow .15s,transform .1s;
+  }
+  .v22-item:hover{background:#f0f5ff;box-shadow:0 4px 14px rgba(40,80,160,.13);}
+  .v22-item:active{transform:scale(.98);}
+  .v22-item.first{background:rgba(31,111,230,.07);}
+  .v22-room{
+    font-size:15px;font-weight:700;color:var(--blue);
+    min-width:68px;letter-spacing:.5px;
+  }
+  .v22-code{
+    font-size:20px;font-weight:700;color:var(--blue);
+    letter-spacing:2px;flex:1;
+  }
+  .v22-arr{
+    font-size:18px;color:var(--blue);opacity:.7;
+  }
+  .v22-manual-btn{
+    margin:16px 28px 20px;height:50px;border-radius:14px;border:none;
+    background:rgba(60,80,130,.08);color:#7e858f;font-size:16px;
+    cursor:pointer;transition:background .15s;letter-spacing:.5px;
+    font-family:inherit;
+  }
+  .v22-manual-btn:hover{background:rgba(60,80,130,.14);}
 </style>
 </head>
 <body>
@@ -289,7 +341,8 @@
   <h3>版本切换</h3>
   <div class="ctrl-row">
     <button class="ctrl-btn" data-ver="1"><span class="dot"></span>版本1·旧款 UI</button>
-    <button class="ctrl-btn" data-ver="2"><span class="dot"></span>版本2·简洁识别</button>
+    <button class="ctrl-btn" data-ver="2.1"><span class="dot"></span>版本2.1·换一个</button>
+    <button class="ctrl-btn" data-ver="2.2"><span class="dot"></span>版本2.2·列表选择</button>
     <button class="ctrl-btn active" data-ver="3"><span class="dot"></span>版本3·球形选择</button>
   </div>
 
@@ -404,6 +457,21 @@
     <div class="welink">Meeting</div>
   </div>
 
+  <!-- Version 2.2 picker overlay -->
+  <div class="v22-picker" id="v22picker">
+    <div class="titlebar">
+      <div class="logo">eShare</div>
+      <div class="winctrls">
+        <button><svg viewBox="0 0 24 24" width="22" height="22" stroke="currentColor" stroke-width="2" fill="none"><line x1="5" y1="12" x2="19" y2="12"/></svg></button>
+        <button><svg viewBox="0 0 24 24" width="22" height="22" stroke="currentColor" stroke-width="2" fill="none"><line x1="6" y1="6" x2="18" y2="18"/><line x1="18" y1="6" x2="6" y2="18"/></svg></button>
+      </div>
+    </div>
+    <div class="v22-heading">投影码</div>
+    <div class="v22-desc" id="v22desc"></div>
+    <div class="v22-list" id="v22list"></div>
+    <button class="v22-manual-btn" id="v22manual">手动输入投影码</button>
+  </div>
+
   <!-- Projecting screen -->
   <div class="projecting" id="projScreen">
     <div class="titlebar">
@@ -450,7 +518,7 @@
   ];
 
   /* ── state ── */
-  let currentVersion = 3;  // 1 | 2 | 3
+  let currentVersion = '3';  // '1' | '2.1' | '2.2' | '3'
   let mode = 0;            // 0..3 (v2/v3: how many codes detected)
   let selectedCode = null;
   let typedValue = '';
@@ -520,7 +588,7 @@
   }
 
   document.getElementById('swapLink').addEventListener('click', ()=>{
-    if(currentVersion !== 2) return;
+    if(currentVersion !== '2.1') return;
     const pool = CODES.slice(0, mode);
     v2SwapIndex = (v2SwapIndex + 1) % pool.length;
     const nc = pool[v2SwapIndex];
@@ -607,13 +675,47 @@
     if(v==='clear'){ typedValue=''; selectedCode=null; }
     else if(v==='back'){ typedValue=d.slice(0,-1); selectedCode=null; }
     else { if(d.length<6){ typedValue=d+v; selectedCode=null; } }
-    if(currentVersion===3 && mode>=2) renderBalls();
+    if(currentVersion==='3' && mode>=2) renderBalls();
     renderInput();
-    if(currentVersion===2) v2UpdateSubtitle();
+    if(currentVersion==='2.1') v2UpdateSubtitle();
     else v3UpdateSubtitle();
     updateButton();
   }
   keypad.addEventListener('click', e=>{ const k=e.target.closest('.key'); if(!k) return; press(k.dataset.key); });
+
+  /* ── v2.2 picker DOM ── */
+  const v22picker = document.getElementById('v22picker');
+  const v22desc   = document.getElementById('v22desc');
+  const v22list   = document.getElementById('v22list');
+
+  function renderV22Picker(m){
+    const pool = CODES.slice(0, m);
+    v22desc.textContent = `识别到 ${m} 个投影码，请确认`;
+    v22list.innerHTML = '';
+    pool.forEach((c, i) => {
+      const item = document.createElement('div');
+      item.className = 'v22-item' + (i===0?' first':'');
+      const codeDisplay = c.code.replace('-', ' - ');
+      item.innerHTML = `<span class="v22-room">${c.room}</span><span class="v22-code">${codeDisplay}</span>${i===0?'<span class="v22-arr">←</span>':''}`;
+      item.addEventListener('click', ()=>{
+        projCode.style.display=''; projCode.textContent=c.room;
+        projScreen.classList.add('show');
+      });
+      v22list.appendChild(item);
+    });
+    v22picker.classList.add('show');
+  }
+
+  document.getElementById('v22manual').addEventListener('click', ()=>{
+    v22picker.classList.remove('show');
+    // reset to manual input (mode 0 visual, keep currentVersion)
+    mode=0; selectedCode=null; typedValue=''; v2SwapIndex=0;
+    win.classList.remove('balls-ready','single','multi','auto1','auto2','auto3');
+    win.classList.add('v2');
+    subtitle.innerHTML=''; v2swapEl.classList.remove('show');
+    renderInput(); updateButton();
+    document.querySelectorAll('[data-mode]').forEach(b=>b.classList.toggle('active', b.dataset.mode==='0'));
+  });
 
   /* ── setMode (v2/v3) ── */
   let ballTimer;
@@ -621,24 +723,30 @@
     clearTimeout(ballTimer);
     mode=m; selectedCode=null; typedValue='';
     v2SwapIndex=0;
+    v22picker.classList.remove('show');
     win.classList.remove('balls-ready','single','multi','auto1','auto2','auto3','v2','v3');
-    win.classList.add(currentVersion===2?'v2':'v3');
+    const isV2x = currentVersion==='2.1'||currentVersion==='2.2';
+    win.classList.add(isV2x?'v2':'v3');
     projScreen.classList.remove('show');
     renderInput(); updateButton();
 
-    if(currentVersion===2){
-      // Version 2: no balls, direct fill
+    if(currentVersion==='2.1'){
       ballsEl.innerHTML=''; ballsEl.classList.remove('n3');
-      if(m===0){
-        subtitle.innerHTML='';
+      if(m===0){ subtitle.innerHTML=''; }
+      else { renderV2Input(CODES[0]); win.classList.add('auto'+m); v2UpdateSubtitle(); updateButton(); }
+
+    } else if(currentVersion==='2.2'){
+      ballsEl.innerHTML=''; ballsEl.classList.remove('n3');
+      if(m===0){ subtitle.innerHTML=''; }
+      else if(m===1){
+        // same as 2.1 for single code
+        renderV2Input(CODES[0]); win.classList.add('auto1'); v2UpdateSubtitle(); updateButton();
       } else {
-        const pool = CODES.slice(0, m);
-        const c = pool[0];
-        renderV2Input(c);
-        updateButton();
-        win.classList.add('auto'+m);
-        v2UpdateSubtitle();
+        // show picker overlay
+        subtitle.innerHTML=''; v2swapEl.classList.remove('show');
+        renderV22Picker(m);
       }
+
     } else {
       // Version 3: original ball logic
       win.classList.toggle('single', m===1);
@@ -648,9 +756,7 @@
       if(m>=2){
         ballsEl.innerHTML='';
         ballTimer=setTimeout(()=>{ win.classList.add('balls-ready'); renderBalls(); }, 400);
-      } else {
-        renderBalls();
-      }
+      } else { renderBalls(); }
     }
   }
 
@@ -660,11 +766,12 @@
 
   function switchVersion(v){
     currentVersion = v;
-    document.querySelectorAll('[data-ver]').forEach(b=>b.classList.toggle('active', parseInt(b.dataset.ver)===v));
-    winV1.classList.toggle('show', v===1);
-    win.classList.toggle('show', v===2||v===3);
-    modePanel.classList.toggle('show', v===2||v===3);
-    if(v===1){
+    document.querySelectorAll('[data-ver]').forEach(b=>b.classList.toggle('active', b.dataset.ver===v));
+    winV1.classList.toggle('show', v==='1');
+    win.classList.toggle('show', v==='2.1'||v==='2.2'||v==='3');
+    modePanel.classList.toggle('show', v==='2.1'||v==='2.2'||v==='3');
+    if(v==='1'){
+      v22picker.classList.remove('show');
       v1Input=''; v1Render();
     } else {
       setMode(mode);
@@ -673,7 +780,7 @@
 
   /* ── Controller events ── */
   document.querySelectorAll('[data-ver]').forEach(btn=>{
-    btn.addEventListener('click', ()=>switchVersion(parseInt(btn.dataset.ver)));
+    btn.addEventListener('click', ()=>switchVersion(btn.dataset.ver));
   });
 
   document.querySelectorAll('[data-mode]').forEach(btn=>{
@@ -687,8 +794,8 @@
   /* ── Project button ── */
   project.addEventListener('click', ()=>{
     if(!project.classList.contains('on')) return;
-    if(currentVersion===3 && mode===1){ projCode.style.display=''; projCode.textContent=CODES[0].room; }
-    else if(currentVersion===2 && mode>=1){
+    if(currentVersion==='3' && mode===1){ projCode.style.display=''; projCode.textContent=CODES[0].room; }
+    else if((currentVersion==='2.1'||currentVersion==='2.2') && mode>=1){
       const pool=CODES.slice(0,mode);
       const c=pool[v2SwapIndex%pool.length];
       projCode.style.display=''; projCode.textContent=c.room;
@@ -707,15 +814,27 @@
       setMode(m);
     }
     if(d.type==='setVersion'){
-      switchVersion(parseInt(d.value)||3);
+      switchVersion(String(d.value||'3'));
     }
     if(d.type==='showController'){
       document.getElementById('controller').style.display = d.value ? '' : 'none';
     }
+    if(d.type==='clickSwap'){
+      var link=document.getElementById('swapLink');
+      if(currentVersion==='2.1' && mode>=2 && link){
+        link.classList.add('sim-hover');
+        setTimeout(function(){ link.classList.remove('sim-hover'); link.click(); }, 520);
+      }
+    }
+    if(d.type==='embedMode'){
+      document.body.style.alignItems='flex-start';
+      document.body.style.minHeight='auto';
+      document.body.style.padding='0';
+    }
   });
 
   /* ── Init ── */
-  switchVersion(3);
+  switchVersion('3');
   // show controller by default (can be hidden via postMessage)
   document.getElementById('controller').style.display = '';
 </script>
